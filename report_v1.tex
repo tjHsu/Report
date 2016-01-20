@@ -16,8 +16,8 @@ We mainly use C++ for our report. For Library, we use Message Passing Interface 
 
 The purpose of this report is to study how precise and stable can steepest descent method fit back the parameter by showing some numerical experiments and also trying to accelerate iterations and increase the precision of the final result.  
 
-\chapter{Problem Formulation}
-\section{Problem Setting}
+\chapter{Problem Setting}
+\section{Problem Formulation}
 
 The main model problem would be discussed in our report is a 2D heat equation. We would like to know the final temperature distribution of the plate, when boundary conditions are given temperature on borders and heat source inside the domain. We approximate the derivatives of this problem with finite difference and we define an equidistant $n \times  n$ spatial grid. 
 
@@ -36,15 +36,32 @@ For time difference, we can also write a Taylor's series approximation.
 
 \section{Explicit Scheme}
 
-In explicit finite difference scheme, the temperature evolutes explicitly on the temperature at previous time step. The explicit finite difference discretization is simply obtained by the above Tayler's series approximation: \[{\frac{u^{n+1}_{i,j}-u^n_{i,j}}{\tau}}=c_{i,j}({\frac{u^n_{i,j+1}-2u^n_{i,j}+u^n_{i,j-1}}{h^2}}+{\frac{u^n_{i+1,j}-2u^n_{i,j}+u^n_{i-1,j}}{h^2}})\]  
+In explicit finite difference scheme, the temperature evolutes explicitly on the temperature at previous time step. The explicit finite difference discretization is simply obtained by the above Tayler's series approximation: \[{\frac{u^{n+1}_{i,j}-u^n_{i,j}}{\tau}}=c_{i,j}({\frac{u^n_{i,j+1}-2u^n_{i,j}+u^n_{i,j-1}}{h^2}}+{\frac{u^n_{i+1,j}-2u^n_{i,j}+u^n_{i-1,j}}{h^2}}).\]
+%Consider adding the grid explanation for i j n.
+This can be rearranged as following:\[u^{n+1}_{i,j}=u^{n}_{i,j}+c_{i,j}{\frac{\tau}{h^2}}(u^n_{i,j+1}+u^n_{i+1,j}-4u^n_{i,j}+u^n_{i,j-1}+u^n_{i-1,j}).\]
+
+We now get a relation between space and time derivatives at each $(x,t)\in \Omega$ with a discrete approximation. As long as we know $u^n_{i\pm 1,j}$,$u^n_{i,j}$, and $u^n_{i,j\pm 1}$, we can compute $u^{n+1}_{i,j}$ for the following time step. The scheme is completely defined when we apply initial conditions and boundary conditions on it. 
+The main benefit of explicit finite difference method is its easiness of implementation and short computing time for each iteration. However, explicit finite difference method is stable only under this condition,\[{\frac{c_{i,j}\tau}{h^2}}\leq {\frac{1}{2}}.\] Otherwise, the solution would become unstable and meaningless.
+
+\section{Implicit Scheme}
+To avoid unstable solution, we can use implicit finite difference schemes. We replace forward difference in time with a backward difference and get the implicit discretization of our heat equation as \[{\frac{u^{n+1}_{i,j}-u^n_{i,j}}{\tau}}=c_{i,j}({\frac{u^{n+1}_{i,j+1}-2u^{n+1}_{i,j}+u^{n+1}_{i,j-1}}{h^2}}+{\frac{u^{n+1}_{i+1,j}-2u^{n+1}_{i,j}+u^{n+1}_{i-1,j}}{h^2}}).\]
+Once again this can be rearranged into
+\[u^{n+1}_{i,j}+c_{i,j}{\frac{\tau}{h^2}}(-u^n_{i,j+1}+-u^n_{i+1,j}+4u^n_{i,j}-u^n_{i,j-1}-u^n_{i-1,j})=u^{n}_{i,j}.\]
+In this scheme, even all $u^n_{i,j}$ are known, we cannot directly compute $u^{n+1}_{i,j} $. We need to solve a linear system at each time step, since all unknown variable $u^{n+1}_{i,j}$ are coupled with each other. 
+%talking about the matrix part.A and u
+
+As we state in the beginning, the major advantage of implicit finite difference methods is that there is no certain condition for stableness. Therefore, we don't have restriction on the time step size, even if we have high resolution on the spatial part. However, the implicit finite difference method is more computational intensive on each iteration. 
+
+
+
 
 
 %We separate our project in to two part, simulate part and estimate part. In simulate part, we first set up a 2D heat equation on a n*n equidistant grid, and discretized it using finite difference stencil. The boundary condition would be the temperature assigned at borders and some heat sources assigned inside domain. Heat conductivity can be specified for each point. After that we use fully implicit method and explicit Runga Kutta method to solve our 2D heat equation. In estimate part, the input is final temperature distribution and we use steepest descent method with least squared error as the cost function. Then trying to fit back the original heat conductivity. 
 
 %II.Scheme
-%1.Explicit scheme
+%@1.Explicit scheme
 %a.Runga-Kutta
-%2.Implicit scheme
+%-2.Implicit scheme
 
 %III. Procedure for estimation
 %1. Gradient Descent.
