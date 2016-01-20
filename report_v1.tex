@@ -17,6 +17,7 @@ We mainly use C++ for our report. For Library, we use Message Passing Interface 
 The purpose of this report is to study how precise and stable can steepest descent method fit back the parameter by showing some numerical experiments and also trying to accelerate iterations and increase the precision of the final result.  
 
 \chapter{Problem Formulation}
+\section{Problem Setting}
 
 The main model problem would be discussed in our report is a 2D heat equation. We would like to know the final temperature distribution of the plate, when boundary conditions are given temperature on borders and heat source inside the domain. We approximate the derivatives of this problem with finite difference and we define an equidistant $n \times  n$ spatial grid. 
 
@@ -33,6 +34,11 @@ and same for y-direction
 For time difference, we can also write a Taylor's series approximation.
 \[u(x_i,t^n+\tau)=u(x_i,t^n)+\tau u_t(x_i,t^n)+\mathcal{O}(\tau^2) \]and we get \[{\frac{u(x_i,t^n+\tau)-u(xi,t^n)}{\tau}}=u_t(x_i,t^n)+\mathcal{O}(\tau).\] 
 
+\section{Explicit Scheme}
+
+In explicit finite difference scheme, the temperature evolutes explicitly on the temperature at previous time step. The explicit finite difference discretization is simply obtained by the above Tayler's series approximation: \[{\frac{u^{n+1}_{i,j}-u^n_{i,j}}{\tau}}=c_{i,j}({\frac{u^n_{i,j+1}-2u^n_{i,j}+u^n_{i,j-1}}{h^2}}+{\frac{u^n_{i+1,j}-2u^n_{i,j}+u^n_{i-1,j}}{h^2}})\]  
+
+
 %We separate our project in to two part, simulate part and estimate part. In simulate part, we first set up a 2D heat equation on a n*n equidistant grid, and discretized it using finite difference stencil. The boundary condition would be the temperature assigned at borders and some heat sources assigned inside domain. Heat conductivity can be specified for each point. After that we use fully implicit method and explicit Runga Kutta method to solve our 2D heat equation. In estimate part, the input is final temperature distribution and we use steepest descent method with least squared error as the cost function. Then trying to fit back the original heat conductivity. 
 
 %II.Scheme
@@ -43,7 +49,7 @@ For time difference, we can also write a Taylor's series approximation.
 %III. Procedure for estimation
 %1. Gradient Descent.
 %We use gradient descent to fit the parameter. The simplest %approach
-
+%(the problem, the approach, the realization, the results including a discussion.)
 
 
 
