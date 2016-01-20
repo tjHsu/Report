@@ -1,0 +1,55 @@
+\documentclass[10pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\begin{document}
+\chapter{Introduction}
+
+The unknown properties and distribution of the heat conductivity is often a important for industrial application and scientific research. It's difficult or even not possible to directly measure the heat conductivity, while measuring temperature is not so difficult. With the measured temperature distribution and some parameter fitting techniques, we can determine the unknown distribution of heat conductivity.
+
+Our project can be divided into two parts, simulation part and estimation part. In simulation part, we use fully implicit method and explicit Runga Kutta method to solve a 2 dimension heat equation. In estimate part, we use steepest descent method to fit back heat conductivity.
+ 
+Each of these methods has its own limitation. Explicit method is easy to implement, but not stable. Implicit method is guarantee to be stable, but it is usually computational intensive. For estimation, steepest descent method does not always give the best parameter set. We would discuss more details of these limitations later in the report. 
+ 
+We mainly use C++ for our report. For Library, we use Message Passing Interface (MPI) for paralleling  and using dco library for algorithmic differentiation. …
+
+The purpose of this report is to study how precise and stable can steepest descent method fit back the parameter by showing some numerical experiments and also trying to accelerate iterations and increase the precision of the final result.  
+
+\chapter{Problem Formulation}
+
+The main model problem would be discussed in our report is a 2D heat equation. We would like to know the final temperature distribution of the plate, when boundary conditions are given temperature on borders and heat source inside the domain. We approximate the derivatives of this problem with finite difference and we define an equidistant $n \times  n$ spatial grid. 
+
+The temperature evolution with the time would be governed by the heat equation in the form \[{\frac{\partial u}{\partial t}}=c({\frac{\partial^2 u}{\partial x^2}}+{\frac{\partial^2 u}{\partial y^2}}),\forall{x,y,t}\in \Omega\]
+where we can specify heat conductivity c for each point, i.e. heat conductivity is non-uniform. The function u must satisfy the above heat equation and we expect that the temperature at $t=T_{end}$ is determined by the time evolution of the equation.
+
+With finite difference approximation, we can approximate the partial differential equation on grids points. Using Taylor's series approximation first on x-direction spatial grid we can derive
+\[u(x_i+h,t^n)=u(x_i,t^n)+hu_x(x_i,t^n)+{\frac{h^2}{2}}u_{xx}(x_i,t^n)+{\frac{h^3}{6}}u_{xxx}(x_i,t^n)+\mathcal{O}(h^4)\]
+\[u(x_i-h,t^n)=u(x_i,t^n)-hu_x(x_i,t^n)+{\frac{h^2}{2}}u_{xx}(x_i,t^n)-{\frac{h^3}{6}}u_{xxx}(x_i,t^n)+\mathcal{O}(h^4) .\]
+Adding up two equation and we get
+\[u_{xx}(x_i,t^n)={\frac{u(x_i+h,t^n)-2u(x_i,t^n)+u(x_i,t^n)}{h^2}}+\mathcal{O}(h^2)\]
+and same for y-direction
+\[u_{yy}(y_i,t^n)={\frac{u(y_i+h,t^n)-2u(y_i,t^n)+u(y_i,t^n)}{h^2}}+\mathcal{O}(h^2).\]
+For time difference, we can also write a Taylor's series approximation.
+\[u(x_i,t^n+\tau)=u(x_i,t^n)+\tau u_t(x_i,t^n)+\mathcal{O}(\tau^2) \]and we get \[{\frac{u(x_i,t^n+\tau)-u(xi,t^n)}{\tau}}=u_t(x_i,t^n)+\mathcal{O}(\tau).\] 
+
+%We separate our project in to two part, simulate part and estimate part. In simulate part, we first set up a 2D heat equation on a n*n equidistant grid, and discretized it using finite difference stencil. The boundary condition would be the temperature assigned at borders and some heat sources assigned inside domain. Heat conductivity can be specified for each point. After that we use fully implicit method and explicit Runga Kutta method to solve our 2D heat equation. In estimate part, the input is final temperature distribution and we use steepest descent method with least squared error as the cost function. Then trying to fit back the original heat conductivity. 
+
+%II.Scheme
+%1.Explicit scheme
+%a.Runga-Kutta
+%2.Implicit scheme
+
+%III. Procedure for estimation
+%1. Gradient Descent.
+%We use gradient descent to fit the parameter. The simplest %approach
+
+
+
+
+
+
+
+
+
+\end{document}
