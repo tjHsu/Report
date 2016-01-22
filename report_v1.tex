@@ -47,8 +47,36 @@ The main benefit of explicit finite difference method is its easiness of impleme
 To avoid unstable solution, we can use implicit finite difference schemes. We replace forward difference in time with a backward difference and get the implicit discretization of our heat equation as \[{\frac{u^{n+1}_{i,j}-u^n_{i,j}}{\tau}}=c_{i,j}({\frac{u^{n+1}_{i,j+1}-2u^{n+1}_{i,j}+u^{n+1}_{i,j-1}}{h^2}}+{\frac{u^{n+1}_{i+1,j}-2u^{n+1}_{i,j}+u^{n+1}_{i-1,j}}{h^2}}).\]
 Once again this can be rearranged into
 \[u^{n+1}_{i,j}+c_{i,j}{\frac{\tau}{h^2}}(-u^n_{i,j+1}+-u^n_{i+1,j}+4u^n_{i,j}-u^n_{i,j-1}-u^n_{i-1,j})=u^{n}_{i,j}.\]
-In this scheme, even all $u^n_{i,j}$ are known, we cannot directly compute $u^{n+1}_{i,j} $. We need to solve a linear system at each time step, since all unknown variable $u^{n+1}_{i,j}$ are coupled with each other. 
+In this scheme, even all $u^n_{i,j}$ are known, we cannot directly compute $u^{n+1}_{i,j} $. We need to solve a linear system at each time step, since all unknown variable $u^{n+1}_{i,j}$ are coupled with each other. We can write our linear system as follow \[AU_{n+1}=U_{n}\] 
+\[A=\begin{bmatrix}
+D & E &   &   &   \\
+E & D & E &   &   \\
+  & \ddots & \ddots &\ddots & \\
+  &   & E & D & E \\
+  &   &   & E & D    
+\end{bmatrix}
+\]
+
+\[E=\begin{bmatrix}
+-{\frac{c_{i,j}\tau}{h^2}} & 0 & & \\
+0 & \ddots & \ddots & \\
+  & \ddots & \ddots & \\
+  &        & 0 & -{\frac{c_{i,j}\tau}{h^2}}  
+\end{bmatrix}
+\]
+
+\[D=\begin{bmatrix}
+1+2({\frac{c_{i,j}\tau}{h^2}}+{\frac{c_{i,j}\tau}{h^2}}) & -{\frac{c_{i,j}\tau}{h^2}} & &  \\
+-{\frac{c_{i,j}\tau}{h^2}} & \ddots & \ddots & \\
+& \ddots & \ddots & -{\frac{c_{i,j}\tau}{h^2}}\\
+ &  & -{\frac{c_{i,j}\tau}{h^2}} & 1+2({\frac{c_{i,j}\tau}{h^2}}+{\frac{c_{i,j}\tau}{h^2}})
+\end{bmatrix}
+\]
+
+
 %talking about the matrix part.A and u
+
+
 
 As we state in the beginning, the major advantage of implicit finite difference methods is that there is no certain condition for stableness. Therefore, we don't have restriction on the time step size, even if we have high resolution on the spatial part. However, the implicit finite difference method is more computational intensive on each iteration. 
 
@@ -67,10 +95,6 @@ As we state in the beginning, the major advantage of implicit finite difference 
 %1. Gradient Descent.
 %We use gradient descent to fit the parameter. The simplest %approach
 %(the problem, the approach, the realization, the results including a discussion.)
-
-
-
-
 
 
 
