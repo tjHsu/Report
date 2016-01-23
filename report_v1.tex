@@ -3,21 +3,24 @@
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
+\newcommand{\argmax}{\mathop{\rm arg~max}\limits}
+\newcommand{\argmin}{\mathop{\rm arg~min}\limits}
 \begin{document}
 \chapter{Introduction}
-
+%something need to add for the software part.
 The unknown properties and distribution of the heat conductivity is often a important for industrial application and scientific research. It's difficult or even not possible to directly measure the heat conductivity, while measuring temperature is not so difficult. With the measured temperature distribution and some parameter fitting techniques, we can determine the unknown distribution of heat conductivity.
 
 Our project can be divided into two parts, simulation part and estimation part. In simulation part, we use fully implicit method and explicit Runga Kutta method to solve a 2 dimension heat equation. In estimate part, we use steepest descent method to fit back heat conductivity.
  
 Each of these methods has its own limitation. Explicit method is easy to implement, but not stable. Implicit method is guarantee to be stable, but it is usually computational intensive. For estimation, steepest descent method does not always give the best parameter set. We would discuss more details of these limitations later in the report. 
  
-We mainly use C++ for our report. For Library, we use Message Passing Interface (MPI) for paralleling  and using dco library for algorithmic differentiation. …
+We mainly use C++ for our report. For Library, we use Message Passing Interface (MPI) for paralleling  and using dco library for algorithmic differentiation.
 
 The purpose of this report is to study how precise and stable can steepest descent method fit back the parameter by showing some numerical experiments and also trying to accelerate iterations and increase the precision of the final result.  
 
 \chapter{Problem Setting}
 \section{Problem Formulation}
+%Heat source term is missing
 
 The main model problem would be discussed in our report is a 2D heat equation. We would like to know the final temperature distribution of the plate, when boundary conditions are given temperature on borders and heat source inside the domain. We approximate the derivatives of this problem with finite difference and we define an equidistant $n \times  n$ spatial grid. 
 
@@ -35,6 +38,7 @@ For time difference, we can also write a Taylor's series approximation.
 \[u(x_i,t^n+\tau)=u(x_i,t^n)+\tau u_t(x_i,t^n)+\mathcal{O}(\tau^2) \]and we get \[{\frac{u(x_i,t^n+\tau)-u(xi,t^n)}{\tau}}=u_t(x_i,t^n)+\mathcal{O}(\tau).\] 
 
 \section{Explicit Scheme}
+%add Runga-Kutta method? Heat source term is missing.
 
 In explicit finite difference scheme, the temperature evolutes explicitly on the temperature at previous time step. The explicit finite difference discretization is simply obtained by the above Tayler's series approximation: \[{\frac{u^{n+1}_{i,j}-u^n_{i,j}}{\tau}}=c_{i,j}({\frac{u^n_{i,j+1}-2u^n_{i,j}+u^n_{i,j-1}}{h^2}}+{\frac{u^n_{i+1,j}-2u^n_{i,j}+u^n_{i-1,j}}{h^2}}).\]
 %Consider adding the grid explanation for i j n.
@@ -44,10 +48,11 @@ We now get a relation between space and time derivatives at each $(x,t)\in \Omeg
 The main benefit of explicit finite difference method is its easiness of implementation and short computing time for each iteration. However, explicit finite difference method is stable only under this condition,\[{\frac{c_{i,j}\tau}{h^2}}\leq {\frac{1}{2}}.\] Otherwise, the solution would become unstable and meaningless.
 
 \section{Implicit Scheme}
+%Indexing is missing. Heat source term is missing.
 To avoid unstable solution, we can use implicit finite difference schemes. We replace forward difference in time with a backward difference and get the implicit discretization of our heat equation as \[{\frac{u^{n+1}_{i,j}-u^n_{i,j}}{\tau}}=c_{i,j}({\frac{u^{n+1}_{i,j+1}-2u^{n+1}_{i,j}+u^{n+1}_{i,j-1}}{h^2}}+{\frac{u^{n+1}_{i+1,j}-2u^{n+1}_{i,j}+u^{n+1}_{i-1,j}}{h^2}}).\]
 Once again this can be rearranged into
 \[u^{n+1}_{i,j}+c_{i,j}{\frac{\tau}{h^2}}(-u^n_{i,j+1}+-u^n_{i+1,j}+4u^n_{i,j}-u^n_{i,j-1}-u^n_{i-1,j})=u^{n}_{i,j}.\]
-In this scheme, even all $u^n_{i,j}$ are known, we cannot directly compute $u^{n+1}_{i,j} $. We need to solve a linear system at each time step, since all unknown variable $u^{n+1}_{i,j}$ are coupled with each other. We can write our linear system as follow \[AU_{n+1}=U_{n}\] 
+In this scheme, even all $u^n_{i,j}$ are known, we cannot directly compute $u^{n+1}_{i,j} $. We need to solve a linear system at each time step, since all unknown variable $u^{n+1}_{i,j}$ are coupled with each other. We can write our linear system as follow \[AU^{n+1}=U^{n}\] 
 \[A=\begin{bmatrix}
 D & E &   &   &   \\
 E & D & E &   &   \\
@@ -74,17 +79,21 @@ E & D & E &   &   \\
 \]
 
 
-%talking about the matrix part.A and u
-
-
-
 As we state in the beginning, the major advantage of implicit finite difference methods is that there is no certain condition for stableness. Therefore, we don't have restriction on the time step size, even if we have high resolution on the spatial part. However, the implicit finite difference method is more computational intensive on each iteration. 
 
+\section{Steepest Descent}
+
+In order to fit parameters back to a problem, we choose steepest descent method. Given a cost function $J(\theta_1,...,\theta_n)$ on a search space, we update our parameter set,$(\theta_1,...,\theta_n)$, until our cost function $J(\theta_1,...,\theta_n)$ converges into a minimal. However, it is not guaranteed that the steepest descent method will stop at the real minimal, usually it stops at local minimal then get stuck in there.
+
+In our report, we use square error function as our cost function $J(\theta_1,...,\theta_n)$, this is to say, when our hypothesis is $h_\theta(x)=\mathbf{\theta}^T \mathbf{x}$, our cost function is \[J(\theta_1,...,\theta_n)= \sum\limits_{i=1}^M (h_\theta(x_i)-y_i)^2          .\] 
+, in which $M$ is the number of our data and $y$ is the real result. The goal would be \[\argmin_{\theta_0,...,\theta_n}J(\theta_0,...,\theta_n).\]  
+First, we randomly pick $\theta_0,...,\theta_n$ as our start point, then we update each $\theta$ as following \[\theta_j := \theta_j - \alpha{\frac{\partial J(\theta_1,...,\theta_n)}{\partial \theta_j}},\] in which $\alpha$ is the learning rate. After updating all parameters, we replace our cost function $J(\theta_1,...,\theta_n)$ with the new set of $(\theta_1,...,\theta_n)$. The next iteration will start with this new cost function and we iterate it until the cost function converge to its minimum. 
 
 
 
 
-%We separate our project in to two part, simulate part and estimate part. In simulate part, we first set up a 2D heat equation on a n*n equidistant grid, and discretized it using finite difference stencil. The boundary condition would be the temperature assigned at borders and some heat sources assigned inside domain. Heat conductivity can be specified for each point. After that we use fully implicit method and explicit Runga Kutta method to solve our 2D heat equation. In estimate part, the input is final temperature distribution and we use steepest descent method with least squared error as the cost function. Then trying to fit back the original heat conductivity. 
+
+
 
 %II.Scheme
 %@1.Explicit scheme
