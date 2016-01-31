@@ -11,7 +11,7 @@
 %something need to add for the software part.
 The unknown properties and distribution of the heat conductivity is often a important for industrial application and scientific research. It's difficult or even not possible to directly measure the heat conductivity, while measuring temperature is not so difficult. With the measured temperature distribution and some parameter fitting techniques, we can determine the unknown distribution of heat conductivity.
 
-Our project can be divided into two parts, simulation part and estimation part. In simulation part, we use fully implicit method and explicit Runga Kutta method to solve a 2 dimension heat equation. In estimate part, we use steepest descent method to fit back heat conductivity.
+Our project can be divided into two parts, simulation part and estimation part. In simulation part, we use fully implicit method and explicit Runga Kutta method to solve a 2 dimension heat equation. In estimate part, we take the result from the simulation as input and use steepest descent method to fit back heat conductivity.
  
 Each of these methods has its own limitation. Explicit method is easy to implement, but not stable. Implicit method is guarantee to be stable, but it is usually computational intensive. For estimation, steepest descent method does not always give the best parameter set. We would discuss more details of these limitations later in the report. 
  
@@ -19,7 +19,7 @@ We mainly use C++ for our report. For Library, we use Message Passing Interface 
 
 The purpose of this report is to study how precise and stable can steepest descent method fit back the parameter by showing some numerical experiments and also trying to accelerate iterations and increase the precision of the final result.  
 
-\chapter{Problem Setting}
+\chapter{Problem Setting and Solution Methods}
 \section{Problem Formulation}
 %https://en.wikipedia.org/wiki/Heat_equation
 %https://en.wikipedia.org/wiki/Thermal_diffusivity
@@ -76,7 +76,7 @@ The accuracy for the fourth-order Runge-Kutta method is $\mathcal{O}(\tau^5)$. H
 The main benefit of explicit finite difference method is its easiness of implementation and short computing time for each iteration. However, explicit finite difference method is stable only under this condition,\[{\frac{c_{i,j}\tau}{h^2}}\leq {\frac{1}{2}}.\] Otherwise, the solution would become unstable and meaningless.
 
 \section{Implicit Scheme}
-%Indexing is missing. Heat source term is missing.
+%Indexing is missing.
 To avoid unstable solution, we can use implicit finite difference schemes. We replace forward difference in time with a backward difference and get the implicit discretization of our heat equation as \[{\frac{u^{n+1}_{i,j}-u^n_{i,j}}{\tau}}=c_{i,j}({\frac{u^{n+1}_{i,j+1}-2u^{n+1}_{i,j}+u^{n+1}_{i,j-1}}{h^2}}+{\frac{u^{n+1}_{i+1,j}-2u^{n+1}_{i,j}+u^{n+1}_{i-1,j}}{h^2}}).\]
 Once again this can be rearranged into
 \[u^{n+1}_{i,j}+c_{i,j}{\frac{\tau}{h^2}}(-u^n_{i,j+1}+-u^n_{i+1,j}+4u^n_{i,j}-u^n_{i,j-1}-u^n_{i-1,j})=u^{n}_{i,j}.\]
@@ -140,20 +140,31 @@ In our report, we use square error function as our cost function $J(\theta_1,...
 First, we randomly pick $\theta_0,...,\theta_n$ as our start point, then we update each $\theta$ as following \[\theta_j := \theta_j - \alpha{\frac{\partial J(\theta_1,...,\theta_n)}{\partial \theta_j}},\] in which $\alpha$ is the learning rate. After updating all parameters, we replace our cost function $J(\theta_1,...,\theta_n)$ with the new set of $(\theta_1,...,\theta_n)$. The next iteration will start with this new cost function and we iterate it until the cost function converge to its minimum. 
 
 
+\chapter{Approach and Implementation}
+\section{difference diffusivity and thermal conductivity}
+%https://en.wikipedia.org/wiki/Specific_properties
+%https://www.nde-ed.org/EducationResources/CommunityCollege/Materials/Physical_Chemical/ThermalConductivity.htm
+
+Before we get start, we need to clarify the difference between thermal diffusivity and thermal conductivity. Thermal diffusivity is \[\alpha = {\frac{k}{\rho c_p}}.\] Here $k$ is thermal conductivity, $\rho$ is density and $c_p$ is specific heat capacity. It is also denoted $k$, which is usually misunderstood with thermal conductivity. On the other hand, thermal conductivity is a intrinsic property and relate to its ability by conduct heat. Thermal conductivity is often denoted $k$,$\kappa$ and $c$  
+
+It worth recurring to this, since we mistook these two parameter at the beginning of the project and lead to the wrong simulation result.
+\section{Compute the Gradient}
+\section{Gridsize for conductivity}
 
 
 
 
 
-%II.Scheme
-%@1.Explicit scheme
-%@a.Runga-Kutta
-%-2.Implicit scheme
 
-%III. Procedure for estimation
-%1. Gradient Descent.
-%We use gradient descent to fit the parameter. The simplest %approach
-%(the problem, the approach, the realization, the results including a discussion.)
+
+
+% Procedure for estimation
+
+%@I. the problem
+%@II. the approach
+%III. the realization 
+%IV.the results including a discussion.
+
 
 
 
