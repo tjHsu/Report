@@ -46,7 +46,32 @@ In explicit finite difference scheme, the temperature evolutes explicitly on the
 %Consider adding the grid explanation for i j n.
 This can be rearranged as following:\[u^{n+1}_{i,j}=u^{n}_{i,j}+c_{i,j}{\frac{\tau}{h^2}}(u^n_{i,j+1}+u^n_{i+1,j}-4u^n_{i,j}+u^n_{i,j-1}+u^n_{i-1,j}).\]
 
-We now get a relation between space and time derivatives at each $(x,t)\in \Omega$ with a discrete approximation. As long as we know $u^n_{i\pm 1,j}$,$u^n_{i,j}$, and $u^n_{i,j\pm 1}$, we can compute $u^{n+1}_{i,j}$ for the following time step. The scheme is completely defined when we apply initial conditions and boundary conditions on it. 
+We now get a relation between space and time derivatives at each $(x,t)\in \Omega$ with a discrete approximation. As long as we know $u^n_{i\pm 1,j}$,$u^n_{i,j}$, and $u^n_{i,j\pm 1}$, we can compute $u^{n+1}_{i,j}$ for the following time step. The scheme is completely defined when we apply initial conditions and boundary conditions on it.
+
+In order to get higher accuracy, we implement Runge-Kutta method instead of first-order explicit method in our problem. As first-order explicit method, Runge-Kutta method is still a single-step method, with multiple stages per step however. 
+
+To derive Runge-Kutta, once again we start from Taylor series approximation, \[u(t+\tau)=u(t)+\tau u'(t)+{\frac{\tau^2}{2}}u''(t)+\mathcal{O}(h^3).\]
+Then we set first derivative as $u'(t)=f(t,u(t))$. From this we can get our second derivative by differentiating it, which is $u''(t)=f_t(t,u)+f_u(t,u)u'(t)=f_t(t,u)+f_u(t,u)f(t,u).$ We substitute these into our Taylor series approximation and rewrite as following,
+\begin{align*} %without star align will index equation.
+u(t+\tau)
+=u(t)+\tau f(t,u)+{\frac{\tau^2}{2}}[f_t(t,u)+f_u(t,u)f(t,u)]+\mathcal{O}(h^3)\\
+=u(t)+{\frac{\tau}{2}} f(t,u)+{\frac{\tau}{2}}[f(t,u)+\tau f_t(t,u)+\tau f_u(t,u)f(t,u)]+\mathcal{O}(\tau^3).  
+\end{align*}
+With multivariate Taylor series approximation, we know $f(t+\tau,u+\tau f(t,u))=f(t,u)+\tau f_t(t,y)+\tau f_u(t,u)f(t,u)+\mathcal{O}(h^2).$ As a result, we get \[u(t+\tau)=u(t)+{\frac{\tau}{2}}f(t,u)+{\frac{\tau}{2}}f(t+\tau,u+\tau f(t,u))+\mathcal{O}(\tau^3)\] and in simple numerical form \[u^n+1=u^n+\tau ({\frac{1}{2}}k_1+{\frac{1}{2}}k_2),\]with 
+\begin{align*}
+k_1=f(t_n,u^n),\\
+k_2 = f(t_n+\tau, u^n+\tau k_1).
+\end{align*}
+This is so called second-order Runge-Kutta method. However, to gain higher accuracy we use fourthe-order Runge-Kutta method and the method is as follow,\[u^{n+1}=u^n+h[{\frac{k_1}{6}}+{\frac{k_2}{3}}+{\frac{k_3}{3}}+{\frac{k_4}{6}}]\]
+with
+\begin{align*}
+k_1=f(t_n,u^n),\\
+k_2=f(t_n+{\frac{\tau}{2}},u^n+{\frac{\tau}{2}}k_1),\\
+k_2=f(t_n+{\frac{\tau}{2}},u^n+{\frac{\tau}{2}}k_2),\\
+k_2=f(t_n+\tau,u^n+\tau k_3).
+\end{align*}
+The accuracy for the fourth-order Runge-Kutta method is $\mathcal{O}(\tau^5)$. However, this method also requires to evaluate the function $f$ four times per time step. One can easily see that in order to get higher order precision, we need more evaluations per time step. Generally speaking, it's not efficient to apply Runge-Kutta methods higher than fourth order. 
+
 The main benefit of explicit finite difference method is its easiness of implementation and short computing time for each iteration. However, explicit finite difference method is stable only under this condition,\[{\frac{c_{i,j}\tau}{h^2}}\leq {\frac{1}{2}}.\] Otherwise, the solution would become unstable and meaningless.
 
 \section{Implicit Scheme}
