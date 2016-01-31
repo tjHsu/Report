@@ -1,5 +1,4 @@
-%test
-%test
+
 \documentclass[10pt,a4paper]{report}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
@@ -22,12 +21,13 @@ The purpose of this report is to study how precise and stable can steepest desce
 
 \chapter{Problem Setting}
 \section{Problem Formulation}
-%Heat source term is missing
+%https://en.wikipedia.org/wiki/Heat_equation
+%https://en.wikipedia.org/wiki/Thermal_diffusivity
 
 The main model problem would be discussed in our report is a 2D heat equation. We would like to know the final temperature distribution of the plate, when boundary conditions are given temperature on borders and heat source inside the domain. We approximate the derivatives of this problem with finite difference and we define an equidistant $n \times  n$ spatial grid. 
 
-The temperature evolution with the time would be governed by the heat equation in the form \[{\frac{\partial u}{\partial t}}=c({\frac{\partial^2 u}{\partial x^2}}+{\frac{\partial^2 u}{\partial y^2}}),\forall{x,y,t}\in \Omega\]
-where we can specify heat conductivity c for each point, i.e. heat conductivity is non-uniform. The function u must satisfy the above heat equation and we expect that the temperature at $t=T_{end}$ is determined by the time evolution of the equation.
+The temperature evolution with the time would be governed by the heat equation in the form \[{\frac{\partial u}{\partial t}}=\alpha({\frac{\partial^2 u}{\partial x^2}}+{\frac{\partial^2 u}{\partial y^2}}),\forall{x,y,t}\in \Omega,\]with $\alpha = {\frac{k}{c_p \rho}}$. Here $k$ is thermal conductivity, $\rho$ is density and $c_p$ is specific heat capacity. 
+We can specify heat conductivity c for each point, i.e. heat conductivity is non-uniform. The function u must satisfy the above heat equation and we expect that the temperature at $t=T_{end}$ is determined by the time evolution of the equation.
 
 With finite difference approximation, we can approximate the partial differential equation on grids points. Using Taylor's series approximation first on x-direction spatial grid we can derive
 \[u(x_i+h,t^n)=u(x_i,t^n)+hu_x(x_i,t^n)+{\frac{h^2}{2}}u_{xx}(x_i,t^n)+{\frac{h^3}{6}}u_{xxx}(x_i,t^n)+\mathcal{O}(h^4)\]
@@ -107,7 +107,29 @@ E & D & E &   &   \\
 \]
 
 
-As we state in the beginning, the major advantage of implicit finite difference methods is that there is no certain condition for stableness. Therefore, we don't have restriction on the time step size, even if we have high resolution on the spatial part. However, the implicit finite difference method is more computational intensive on each iteration. 
+As we state in the beginning, the major advantage of implicit finite difference methods is that there is no certain condition for stableness. Therefore, we don't have restriction on the time step size, even if we have high resolution on the spatial part. However, the implicit finite difference method is more computational intensive on each iteration.
+
+\section{Internal Heat Source}
+%http://people.math.gatech.edu/~xchen/teach/pde/heat/Heat-Duhamel.pdf
+%https://en.wikipedia.org/wiki/Duhamel%27s_principle
+
+In our problem, boundary conditions are not only the temperature at borders (i.e, the north, east, south and west borders) but also heat sources inside our domain. This basically means we are trying to solve a nonhomogeneous problem instead of homogeneous one only. Our heat equation becomes
+\[
+\begin{cases}
+ {\frac{\partial u}{\partial t}}=\alpha({\frac{\partial^2 u}{\partial x^2}}+{\frac{\partial^2 u}{\partial y^2}})+{\frac{1}{c_p \rho}}q(t) \quad t>0,\\
+ u(t=0)=0
+\end{cases}
+\]  
+According to Duhamel's Principle, an auxiliary problem of this is   
+\[
+\begin{cases}
+ {\frac{\partial u(t;s)}{\partial t}}=\alpha({\frac{\partial^2 u(t;s)}{\partial x^2}}+{\frac{\partial^2 u(t;s)}{\partial y^2}}) \quad t>s,\\
+ u(s;s)=q(s;s).\\
+\end{cases}  
+\]
+Duhamel's Principle implies that we can move the heat source term into initial conditions and it is possible to derive the solution of a nonhomogeneous heat equation from the solution of a homogeneous heat equation with initial values.
+
+Furthermore, our heat source term is independent of time, so Duhamel's Principle guarantees that we are allowed to absorb the heat source term into initial condition, apply normal numerical method to the problem and will get the correct solution in the end.
 
 \section{Steepest Descent}
 
@@ -125,7 +147,7 @@ First, we randomly pick $\theta_0,...,\theta_n$ as our start point, then we upda
 
 %II.Scheme
 %@1.Explicit scheme
-%a.Runga-Kutta
+%@a.Runga-Kutta
 %-2.Implicit scheme
 
 %III. Procedure for estimation
