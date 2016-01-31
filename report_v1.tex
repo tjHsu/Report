@@ -40,7 +40,8 @@ For time difference, we can also write a Taylor's series approximation.
 \[u(x_i,t^n+\tau)=u(x_i,t^n)+\tau u_t(x_i,t^n)+\mathcal{O}(\tau^2) \]and we get \[{\frac{u(x_i,t^n+\tau)-u(xi,t^n)}{\tau}}=u_t(x_i,t^n)+\mathcal{O}(\tau).\] 
 
 \section{Explicit Scheme}
-%add Runga-Kutta method? Heat source term is missing.
+%change u into vertor bold font?
+%\mathbf{u}
 
 In explicit finite difference scheme, the temperature evolutes explicitly on the temperature at previous time step. The explicit finite difference discretization is simply obtained by the above Tayler's series approximation: \[{\frac{u^{n+1}_{i,j}-u^n_{i,j}}{\tau}}=c_{i,j}({\frac{u^n_{i,j+1}-2u^n_{i,j}+u^n_{i,j-1}}{h^2}}+{\frac{u^n_{i+1,j}-2u^n_{i,j}+u^n_{i-1,j}}{h^2}}).\]
 %Consider adding the grid explanation for i j n.
@@ -50,11 +51,11 @@ We now get a relation between space and time derivatives at each $(x,t)\in \Omeg
 
 In order to get higher accuracy, we implement Runge-Kutta method instead of first-order explicit method in our problem. As first-order explicit method, Runge-Kutta method is still a single-step method, with multiple stages per step however. 
 
-To derive Runge-Kutta, once again we start from Taylor series approximation, \[u(t+\tau)=u(t)+\tau u'(t)+{\frac{\tau^2}{2}}u''(t)+\mathcal{O}(h^3).\]
-Then we set first derivative as $u'(t)=f(t,u(t))$. From this we can get our second derivative by differentiating it, which is $u''(t)=f_t(t,u)+f_u(t,u)u'(t)=f_t(t,u)+f_u(t,u)f(t,u).$ We substitute these into our Taylor series approximation and rewrite as following,
+To derive Runge-Kutta, once again we start from Taylor series approximation, \[u(t+\tau)=u(t)+\tau u'(t)+{\frac{\tau^2}{2}}u''(t)+\mathcal{O}(\tau^3).\]
+Then we set first derivative as $u'(t)=f(t,u(t))$. From this we can get our second derivative by differentiating it, which is \[u''(t)=f_t(t,u)+f_u(t,u)u'(t)=f_t(t,u)+f_u(t,u)f(t,u).\] We substitute these into our Taylor series approximation and rewrite as following,
 \begin{align*} %without star align will index equation.
 u(t+\tau)
-=u(t)+\tau f(t,u)+{\frac{\tau^2}{2}}[f_t(t,u)+f_u(t,u)f(t,u)]+\mathcal{O}(h^3)\\
+=u(t)+\tau f(t,u)+{\frac{\tau^2}{2}}[f_t(t,u)+f_u(t,u)f(t,u)]+\mathcal{O}(\tau^3)\\
 =u(t)+{\frac{\tau}{2}} f(t,u)+{\frac{\tau}{2}}[f(t,u)+\tau f_t(t,u)+\tau f_u(t,u)f(t,u)]+\mathcal{O}(\tau^3).  
 \end{align*}
 With multivariate Taylor series approximation, we know $f(t+\tau,u+\tau f(t,u))=f(t,u)+\tau f_t(t,y)+\tau f_u(t,u)f(t,u)+\mathcal{O}(h^2).$ As a result, we get \[u(t+\tau)=u(t)+{\frac{\tau}{2}}f(t,u)+{\frac{\tau}{2}}f(t+\tau,u+\tau f(t,u))+\mathcal{O}(\tau^3)\] and in simple numerical form \[u^n+1=u^n+\tau ({\frac{1}{2}}k_1+{\frac{1}{2}}k_2),\]with 
