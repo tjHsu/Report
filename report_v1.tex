@@ -145,12 +145,17 @@ First, we randomly pick $\theta_0,...,\theta_n$ as our start point, then we upda
 %https://en.wikipedia.org/wiki/Specific_properties
 %https://www.nde-ed.org/EducationResources/CommunityCollege/Materials/Physical_Chemical/ThermalConductivity.htm
 
-Before we get start, we need to clarify the difference between thermal diffusivity and thermal conductivity. Thermal diffusivity is \[\alpha = {\frac{k}{\rho c_p}}.\] Here $k$ is thermal conductivity, $\rho$ is density and $c_p$ is specific heat capacity. It is also denoted $k$, which is usually misunderstood with thermal conductivity. On the other hand, thermal conductivity is a intrinsic property and relate to its ability by conduct heat. Thermal conductivity is often denoted $k$,$\kappa$ and $c$  
+Before we get start, we need to clarify the difference between thermal diffusivity and thermal conductivity. Thermal diffusivity is \[\alpha = {\frac{k}{\rho c_p}}.\] Here $k$ is thermal conductivity, $\rho$ is density and $c_p$ is specific heat capacity. It is also denoted $k$, which is usually misunderstood with thermal conductivity and is not the parameter we want to fit back to our problem. On the other hand, thermal conductivity is a intrinsic property and relate to its ability by conduct heat. Thermal conductivity is often denoted $k$,$\kappa$ and $c$.   
 
-It worth recurring to this, since we mistook these two parameter at the beginning of the project and lead to the wrong simulation result.
+It worth recurring to this, since we mistook these two parameter at the beginning of the project and it lead to the wrong simulation result.
+
 \section{Compute the Gradient}
-\section{Gridsize for conductivity}
 
+
+
+\section{Gridsize for conductivity}
+%Graph.
+Although we can specify certain thermal conductivity to each points when simulating, at the beginning we are not going to fit parameter on each point. Instead, we divide our domain in to several block and the block size can be specified. The first reason is that usually the original conductivity is not different at each point but block. Second, since in estimation step, we doesn't know the distribution of the initial conductivity, rashly set the resolution to the grid point may cause overfitting and need more computation time. It would be proper to start with big block, and depending on the accuracy requirement, we can reduce the size of the block until we get the expected result.   
 
 
 
