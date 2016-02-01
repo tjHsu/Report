@@ -150,6 +150,21 @@ Before we get start, we need to clarify the difference between thermal diffusivi
 It worth recurring to this, since we mistook these two parameter at the beginning of the project and it lead to the wrong simulation result.
 
 \section{Compute the Gradient}
+For steepest descent, we need to compute the gradient. For this, we have three choice, finite difference, adjoint mode and tagent linear mode. 
+
+Finite difference:
+\[F(x,\dot{x}):=F'(x)\dot{x}\approx {\frac{F(x+h\dot{x})-F(x)}{h}}\]
+$\text{The computational cost of }F'(x)\, \text{is at} \, O(input) \cdot cost(F)$.
+It is easy and straightforward to use finite difference method. However, when the step size become smaller and smaller, the truncation error will come in, since finite difference is an approximation method. 
+
+Tangent linear mode:
+\[F(x,\dot{x}):=F'(x)\dot{x}=\dot{y}\]
+$\text{The computational cost of }F'(x)\, \text{is at} \, O(input) \cdot cost(F)$. Although we still need to evaluate function $F$ as many times as finite difference, we can get a more accurate result by using tangent linear mode.
+
+Adjoint mode:
+\[F(x,\bar{y}):=\bar{y}F'(x)=\bar{x}\]
+$\text{The computational cost of }F'(x)\, \text{is at} \, O(output) \cdot cost(F)$. Different from two methods above, computing gradient with adjoint mode, the computational cost is linear to the output. For our case, it means we can get full gradient in one run. Since accuracy is not the important issue for us, we will mainly use adjoint mode to compute gradient for steepest descent method. 
+     
 
 
 
