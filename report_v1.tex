@@ -76,17 +76,30 @@ The accuracy for the fourth-order Runge-Kutta method is $\mathcal{O}(\tau^5)$. H
 The main benefit of explicit finite difference method is its easiness of implementation and short computing time for each iteration. However, explicit finite difference method is stable only under this condition,\[{\frac{c_{i,j}\tau}{h^2}}\leq {\frac{1}{2}}.\] Otherwise, the solution would become unstable and meaningless.
 
 \section{Implicit Scheme}
-%Indexing is missing.
+
 To avoid unstable solution, we can use implicit finite difference schemes. We replace forward difference in time with a backward difference and get the implicit discretization of our heat equation as \[{\frac{u^{n+1}_{i,j}-u^n_{i,j}}{\tau}}=c_{i,j}({\frac{u^{n+1}_{i,j+1}-2u^{n+1}_{i,j}+u^{n+1}_{i,j-1}}{h^2}}+{\frac{u^{n+1}_{i+1,j}-2u^{n+1}_{i,j}+u^{n+1}_{i-1,j}}{h^2}}).\]
 Once again this can be rearranged into
 \[u^{n+1}_{i,j}+c_{i,j}{\frac{\tau}{h^2}}(-u^n_{i,j+1}+-u^n_{i+1,j}+4u^n_{i,j}-u^n_{i,j-1}-u^n_{i-1,j})=u^{n}_{i,j}.\]
 In this scheme, even all $u^n_{i,j}$ are known, we cannot directly compute $u^{n+1}_{i,j} $. We need to solve a linear system at each time step, since all unknown variable $u^{n+1}_{i,j}$ are coupled with each other. We can write our linear system as follow \[AU^{n+1}=U^{n}\] 
+
+\[U^{n+1}=\begin{bmatrix}
+u^{n+1}_{1,1}\\
+\vdots\\
+u^{n+1}_{1,j_{max}}\\
+u^{n+1}_{2,1}\\
+\vdots\\
+u^{n+1}_{2,j_{max}}\\
+\vdots\\
+u^{n+1}_{i_{max},j_{max}}\\
+\end{bmatrix}
+\]
+
 \[A=\begin{bmatrix}
-D & E &   &   &   \\
-E & D & E &   &   \\
+D_{(i=1)} & E_{(i=1)} & 0  & \cdots  & 0  \\
+E_{(i=2)} & D_{(i=2)} & E_{(i=2)} &   & \vdots  \\
   & \ddots & \ddots &\ddots & \\
-  &   & E & D & E \\
-  &   &   & E & D    
+ \vdots &   & E_{(i=i_{max}-1)} & D_{(i=i_{max}-1)} & E_{(i=i_{max}-1)} \\
+ 0 & \cdots  &   & E_{(i=i_{max})} & D_{(i=i_{max})}    
 \end{bmatrix}
 \]
 
@@ -94,15 +107,27 @@ E & D & E &   &   \\
 -{\frac{c_{i,j}\tau}{h^2}} & 0 & & \\
 0 & \ddots & \ddots & \\
   & \ddots & \ddots & \\
-  &        & 0 & -{\frac{c_{i,j}\tau}{h^2}}  
+  &        & 0 & -{\frac{c_{i,j_{max}}\tau}{h^2}}  
 \end{bmatrix}
 \]
 
 \[D=\begin{bmatrix}
 1+2({\frac{c_{i,j}\tau}{h^2}}+{\frac{c_{i,j}\tau}{h^2}}) & -{\frac{c_{i,j}\tau}{h^2}} & &  \\
--{\frac{c_{i,j}\tau}{h^2}} & \ddots & \ddots & \\
-& \ddots & \ddots & -{\frac{c_{i,j}\tau}{h^2}}\\
- &  & -{\frac{c_{i,j}\tau}{h^2}} & 1+2({\frac{c_{i,j}\tau}{h^2}}+{\frac{c_{i,j}\tau}{h^2}})
+-{\frac{c_{i,j+1}\tau}{h^2}} & \ddots & \ddots & \\
+& \ddots & \ddots & -{\frac{c_{i,j_{max}-1}\tau}{h^2}}\\
+ &  & -{\frac{c_{i,j_{max}}\tau}{h^2}} & 1+2({\frac{c_{i,j_{max}}\tau}{h^2}}+{\frac{c_{i,j_{max}}\tau}{h^2}})
+\end{bmatrix}
+\]
+
+\[U^{n}=\begin{bmatrix}
+u^{n}_{bottom}\\
+\vdots\\
+u^{n}_{1,j_{max}}\\
+u^{n}_{2,1}\\
+\vdots\\
+u^{n}_{2,j_{max}}\\
+\vdots\\
+u^{n}_{bottom}\\
 \end{bmatrix}
 \]
 
@@ -144,6 +169,9 @@ First, we randomly pick $\theta_0,...,\theta_n$ as our start point, then we upda
 \section{difference diffusivity and thermal conductivity}
 %https://en.wikipedia.org/wiki/Specific_properties
 %https://www.nde-ed.org/EducationResources/CommunityCollege/Materials/Physical_Chemical/ThermalConductivity.htm
+%In general, steady-state techniques are useful when the temperature of the material does not change with time. => It's depend on temperature, especially on high temperature
+%Thermal conductivity, k, often depends on temperature. Therefore the definitions listed below make sense when the thermal conductivity is temperature independent. Otherwise an representative mean value has to be considered
+
 
 Before we get start, we need to clarify the difference between thermal diffusivity and thermal conductivity. Thermal diffusivity is \[\alpha = {\frac{k}{\rho c_p}}.\] Here $k$ is thermal conductivity, $\rho$ is density and $c_p$ is specific heat capacity. It is also denoted $k$, which is usually misunderstood with thermal conductivity and is not the parameter we want to fit back to our problem. On the other hand, thermal conductivity is a intrinsic property and relate to its ability by conduct heat. Thermal conductivity is often denoted $k$,$\kappa$ and $c$.   
 
