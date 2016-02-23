@@ -201,7 +201,17 @@ $\text{The computational cost of }F'(x)\, \text{is at} \, O(output) \cdot cost(F
 Although we can specify certain thermal conductivity to each points when simulating, at the beginning we are not going to fit parameter on each point. Instead, we divide our domain in to several block and the block size can be specified. The first reason is that usually the original conductivity is not different at each point but block. Second, since in estimation step, we doesn't know the distribution of the initial conductivity, rashly set the resolution to the grid point may cause overfitting and need more computation time. It would be proper to start with big block, and depending on the accuracy requirement, we can reduce the size of the block until we get the expected result.   
 
 
+\section{gradient computation with AD}
+\section{Jacobi iteration and Domain Decomposition}
+\section{Validation }
 
+
+
+
+\chapter{The Results and Discussion}
+\section{Speed up with MPI}
+\section{Gradient Evaluation with Different Methods}
+\section{Convergence of Steepest Descent}
 
 
 
