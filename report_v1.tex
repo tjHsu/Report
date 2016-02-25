@@ -205,8 +205,8 @@ The gradient descent method requires solving the heat equation until convergence
 %
 %The purpose of this report is to study how precise and stable can steepest descent method fit back the parameter by showing some numerical experiments and also trying to accelerate iterations and increase the precision of the final result.  
 
-\chapter{Problem Setting and Solution Methods}
-\section{Problem Formulation}
+\chapter{Numerical Schemes for Heat Equation}
+\section{Discretization of Heat Equation}
 %https://en.wikipedia.org/wiki/Heat_equation
 %https://en.wikipedia.org/wiki/Thermal_diffusivity
 
@@ -248,7 +248,7 @@ and we get\begin{equation}
 {\frac{u(x_i,t^n+\tau)-u(xi,t^n)}{\tau}}=u_t(x_i,t^n)+\mathcal{O}(\tau).
 \end{equation} %\[\] 
 
-\section{Explicit Scheme}
+\subsection{Explicit Runge-Kutta Scheme}
 %change u into vertor bold font?
 %\mathbf{u}
 
@@ -317,7 +317,7 @@ The main benefit of explicit finite difference method is its easiness of impleme
 \end{equation}
 \[\] Otherwise, the solution would become unstable and meaningless.
 
-\section{Implicit Scheme}
+\subsection{Fully Implicit Scheme}
 
 To avoid unstable solution, we can use implicit finite difference schemes. We replace forward difference in time with a backward difference and get the implicit discretization of our heat equation as
 \begin{equation}
@@ -401,7 +401,11 @@ u^{n}_{bottom}\\
 
 As we state in the beginning, the major advantage of implicit finite difference methods is that there is no certain condition for stableness. Therefore, we don't have restriction on the time step size, even if we have high resolution on the spatial part. However, the implicit finite difference method is more computational intensive on each iteration.
 
-\section{Internal Heat Source}
+\subsection{Jacobi iteration and Domain Decomposition}
+
+\section{Internal Heat Source Term}
+
+
 %http://people.math.gatech.edu/~xchen/teach/pde/heat/Heat-Duhamel.pdf
 %https://en.wikipedia.org/wiki/Duhamel%27s_principle
 
@@ -425,7 +429,16 @@ Duhamel's Principle implies that we can move the heat source term into initial c
 
 Furthermore, our heat source term is independent of time, so Duhamel's Principle guarantees that we are allowed to absorb the heat source term into initial condition, apply normal numerical method to the problem and will get the correct solution in the end.
 
-\section{Steepest Descent}
+\section{Comparison of Numerical Schemes}
+??
+??
+
+
+
+
+\chapter{Parameter Estimation}
+
+\section{Steepest Descent Method}
 
 In order to fit parameters back to a problem, we choose steepest descent method. Given a cost function $J(\theta_1,...,\theta_n)$ on a search space, we update our parameter set,$(\theta_1,...,\theta_n)$, until our cost function $J(\theta_1,...,\theta_n)$ converges into a minimal. However, it is not guaranteed that the steepest descent method will stop at the real minimal, usually it stops at local minimal then get stuck in there.
 
@@ -444,9 +457,13 @@ First, we randomly pick $\theta_0,...,\theta_n$ as our start point, then we upda
 \end{equation}
  \[\] in which $\alpha$ is the learning rate. After updating all parameters, we replace our cost function $J(\theta_1,...,\theta_n)$ with the new set of $(\theta_1,...,\theta_n)$. The next iteration will start with this new cost function and we iterate it until the cost function converge to its minimum. 
 
+\section{Separating the Conductivity resolution from temperature distribution resolution}
+%Graph.
+Although we can specify certain thermal conductivity to each points when simulating, at the beginning we are not going to fit parameter on each point. Instead, we divide our domain in to several block and the block size can be specified. The first reason is that usually the original conductivity is not different at each point but block. Second, since in estimation step, we doesn't know the distribution of the initial conductivity, rashly set the resolution to the grid point may cause overfitting and need more computation time. It would be proper to start with big block, and depending on the accuracy requirement, we can reduce the size of the block until we get the expected result. 
 
-\chapter{Approach and Implementation}
-\section{difference diffusivity and thermal conductivity}
+
+
+\section{Difference between Diffusivity and Thermal Conductivity}
 %https://en.wikipedia.org/wiki/Specific_properties
 %https://www.nde-ed.org/EducationResources/CommunityCollege/Materials/Physical_Chemical/ThermalConductivity.htm
 %In general, steady-state techniques are useful when the temperature of the material does not change with time. => It's depend on temperature, especially on high temperature
@@ -482,30 +499,24 @@ F(x,\bar{y}):=\bar{y}F'(x)=\bar{x}
 \[\]
 $\text{The computational cost of }F'(x)\, \text{is at} \, O(output) \cdot cost(F)$. Different from two methods above, computing gradient with adjoint mode, the computational cost is linear to the output. For our case, it means we can get full gradient in one run. Since accuracy is not the important issue for us, we will mainly use adjoint mode to compute gradient for steepest descent method. 
      
-
-
-
-\section{Gridsize for conductivity}
-%Graph.
-Although we can specify certain thermal conductivity to each points when simulating, at the beginning we are not going to fit parameter on each point. Instead, we divide our domain in to several block and the block size can be specified. The first reason is that usually the original conductivity is not different at each point but block. Second, since in estimation step, we doesn't know the distribution of the initial conductivity, rashly set the resolution to the grid point may cause overfitting and need more computation time. It would be proper to start with big block, and depending on the accuracy requirement, we can reduce the size of the block until we get the expected result.   
-
-
-\section{gradient computation with AD}
-\section{Jacobi iteration and Domain Decomposition}
-\section{Validation }
-
-
-
-
-\chapter{The Results and Discussion}
-\section{Speed up with MPI}
-\section{Gradient Evaluation with Different Methods}
+\subsection{Gradient computation using Finite difference}
+\subsection{Gradient compuataion using Algorithmic differentiation}
+\subsection{Comparison of gradient computation time by FD and Adjoint AD}
 \section{Convergence of Steepest Descent}
 %convergence reach a plator and wait long to decrease again.
 
 
 
-% Procedure for estimation
+
+\chapter{Conclusion}
+%\section{Speed up with MPI}
+%\section{Gradient Evaluation with Different Methods}
+
+
+
+
+
+
 
 %@I. the problem
 %@II. the approach
