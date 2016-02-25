@@ -4,6 +4,8 @@
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage[linesnumbered,boxed]{algorithm2e}
 \newcommand{\argmax}{\mathop{\rm arg~max}\limits}
 \newcommand{\argmin}{\mathop{\rm arg~min}\limits}
 \begin{document}
@@ -93,7 +95,7 @@ For the purpose of testing, and gathering results, the observed temperature has 
 
 
 \chapter{Introduction}
-\setcounter{page}{1}
+%\setcounter{page}{1}
 To estimate the variation in conductivity along the surface of a homogeneous material*, the heat conduction along the 2D surface have to be simulated. This chapter explains the details of the problem, the solution approaches and the bottlenecks.\\
 
 \begin{small}
@@ -103,7 +105,7 @@ To estimate the variation in conductivity along the surface of a homogeneous mat
 \end{small}
 
 \section{Problem Definition}
-Heat is an energy that flows from higher temperature to lower temperature. Conduction is a method of heat transfer that occurs by  the movement of electrons from atom to atom .Thus, densely packed materials have higher conduction. The heat conduction in 2D can be modeled using the following partial differential equation:
+Heat is an energy that flows from higher temperature to lower temperature. Conduction is a method of heat transfer that occurs by  the movement of electrons from atom to atom .Thus, densely packed materials have higher conduction. The heat conduction in 2D can be modeled using the following partial differential equation$^{[1]}$:
 \begin{equation}
 \frac{\partial u}{\partial t}=k \bigtriangledown^2(u)
 \end{equation}
@@ -122,9 +124,9 @@ $c$: Thermal conductivity\\
 $\rho$: Density\\
 $C_p$: Specific heat capacity\\
 \\
-Thermal conductivity is the measure of the quantity of thermal energy which flows through a conductor, in a given time, through a given volume and temperature difference. Hence it is a property of the material.
+Thermal conductivity is the measure of the quantity of thermal energy which flows through a conductor, in a given time, through a given volume and temperature difference$^{[2]}$. Hence it is a property of the material.
 
-If we consider the heat source term, the equation becomes,
+If we consider the heat source term, the equation becomes$^{[1]}$,
 \begin{equation}
 \frac{\partial u}{\partial t}=(\frac{c}{\rho C_p})\bigtriangledown^2(u)+\frac{Q_x}{\rho C_p}
 \end{equation}
@@ -315,7 +317,32 @@ The main benefit of explicit finite difference method is its easiness of impleme
 \begin{equation}
 {\frac{c_{i,j}\tau}{h^2}}\leq {\frac{1}{2}}.
 \end{equation}
-\[\] Otherwise, the solution would become unstable and meaningless.
+\[\] Otherwise, the solution would become unstable and meaningless.\\
+
+The algorithm for the Runge-Kutta is as follow:
+\begin{algorithm}
+\caption{Runge-Kutta Scheme with Domain Decomposition}
+  \KwIn{}
+  \KwOut{}
+  
+  \While{$t<\text{TIME}$}
+  {
+
+	Loop i: 0:my\_end\;	
+    \Indp Loop j: 0:my\_end\;
+      	\Indp $u_{k+1}$=Runge-Kutta Update($u_{k}$)\;
+    \bigskip 
+    \Indm \Indm send the top row to the previous rank\\
+	receive the last ghost row from the next rank\\
+	\bigskip 		
+	send the bottom row to the next rank\\
+	receive the top ghost row from the previous rank\\   
+	\bigskip
+    t=t+dt
+  }
+
+
+\end{algorithm}
 
 \subsection{Fully Implicit Scheme}
 
@@ -401,6 +428,27 @@ u^{n}_{bottom}\\
 
 As we state in the beginning, the major advantage of implicit finite difference methods is that there is no certain condition for stableness. Therefore, we don't have restriction on the time step size, even if we have high resolution on the spatial part. However, the implicit finite difference method is more computational intensive on each iteration.
 
+The algorithm for the implicit scheme iteration is as follow:
+
+\begin{algorithm}
+  \caption{Implicit Scheme Jacobi Iteration}
+  \KwIn{}
+  \KwOut{}
+  
+  \While{$t<\text{TIME}$}
+  {
+    
+    \While{$residual<epsilon$}
+    {
+	Loop i: 1:my\_end\;	
+    \Indp Loop j: 1:my\_end\;
+      	\Indp $u_{k+1}$=Jacobi-Iteration($u_{k}$)\;
+    \Indm \Indm residual=$\parallel x_{k+1}-x_{k} \parallel$  
+    }
+    t=t+dt
+  }
+\end{algorithm}
+
 \subsection{Jacobi iteration and Domain Decomposition}
 
 \section{Internal Heat Source Term}
@@ -457,22 +505,36 @@ First, we randomly pick $\theta_0,...,\theta_n$ as our start point, then we upda
 \end{equation}
  \[\] in which $\alpha$ is the learning rate. After updating all parameters, we replace our cost function $J(\theta_1,...,\theta_n)$ with the new set of $(\theta_1,...,\theta_n)$. The next iteration will start with this new cost function and we iterate it until the cost function converge to its minimum. 
 
+The algorithm for this is as follow:
+\begin{algorithm}
+\caption{Steepest Descent Method}
+  \KwIn{}
+  \KwOut{}
+  Initial Guess $\theta_{0}$:$R^{n}$\\
+  STEEPEST DESCENT($\theta_{0}$)\\
+  $\theta=\theta_{0}$\\
+  Compute the gradient $\textbf{g}(\theta)$\\
+  \While{$\parallel \textbf{g} \parallel > \epsilon$}
+  {
+    \While{$C(\theta_{k})>C(\theta)$}    
+    {
+	$\theta_{k}=\theta + \alpha \textbf{g}$\\
+	Compute $C(\theta_{k})$\\
+	$\alpha =\frac{ \alpha}{2}$\\
+    }
+    $\theta=\theta_{k}$\\
+    Compute gradient $\textbf{g}(\theta)$\\
+  }
+\end{algorithm}
+
+
 \section{Separating the Conductivity resolution from temperature distribution resolution}
 %Graph.
 Although we can specify certain thermal conductivity to each points when simulating, at the beginning we are not going to fit parameter on each point. Instead, we divide our domain in to several block and the block size can be specified. The first reason is that usually the original conductivity is not different at each point but block. Second, since in estimation step, we doesn't know the distribution of the initial conductivity, rashly set the resolution to the grid point may cause overfitting and need more computation time. It would be proper to start with big block, and depending on the accuracy requirement, we can reduce the size of the block until we get the expected result. 
 
 
 
-\section{Difference between Diffusivity and Thermal Conductivity}
-%https://en.wikipedia.org/wiki/Specific_properties
-%https://www.nde-ed.org/EducationResources/CommunityCollege/Materials/Physical_Chemical/ThermalConductivity.htm
-%In general, steady-state techniques are useful when the temperature of the material does not change with time. => It's depend on temperature, especially on high temperature
-%Thermal conductivity, k, often depends on temperature. Therefore the definitions listed below make sense when the thermal conductivity is temperature independent. Otherwise an representative mean value has to be considered
 
-
-Before we get start, we need to clarify the difference between thermal diffusivity and thermal conductivity. Thermal diffusivity is \[\alpha = {\frac{k}{\rho c_p}}.\] Here $k$ is thermal conductivity, $\rho$ is density and $c_p$ is specific heat capacity. It is also denoted $k$, which is usually misunderstood with thermal conductivity and is not the parameter we want to fit back to our problem. On the other hand, thermal conductivity is a intrinsic property and relate to its ability by conduct heat. Thermal conductivity is often denoted $k$,$\kappa$ and $c$.   
-
-It worth recurring to this, since we mistook these two parameter at the beginning of the project and it lead to the wrong simulation result.
 
 \section{Compute the Gradient}
 For steepest descent, we need to compute the gradient. For this, we have three choice, finite difference, adjoint mode and tagent linear mode. 
@@ -505,13 +567,37 @@ $\text{The computational cost of }F'(x)\, \text{is at} \, O(output) \cdot cost(F
 \section{Convergence of Steepest Descent}
 %convergence reach a plator and wait long to decrease again.
 
-
+%\section{Difference between Diffusivity and Thermal Conductivity}
+%%https://en.wikipedia.org/wiki/Specific_properties
+%%https://www.nde-ed.org/EducationResources/CommunityCollege/Materials/Physical_Chemical/ThermalConductivity.htm
+%%In general, steady-state techniques are useful when the temperature of the material does not change with time. => It's depend on temperature, especially on high temperature
+%%Thermal conductivity, k, often depends on temperature. Therefore the definitions listed below make sense when the thermal conductivity is temperature independent. Otherwise an representative mean value has to be considered
+%
+%
+%Before we get start, we need to clarify the difference between thermal diffusivity and thermal conductivity. Thermal diffusivity is \[\alpha = {\frac{k}{\rho c_p}}.\] Here $k$ is thermal conductivity, $\rho$ is density and $c_p$ is specific heat capacity. It is also denoted $k$, which is usually misunderstood with thermal conductivity and is not the parameter we want to fit back to our problem. On the other hand, thermal conductivity is a intrinsic property and relate to its ability by conduct heat. Thermal conductivity is often denoted $k$,$\kappa$ and $c$.   
+%
+%It worth recurring to this, since we mistook these two parameter at the beginning of the project and it lead to the wrong simulation result.
 
 
 \chapter{Conclusion}
 %\section{Speed up with MPI}
 %\section{Gradient Evaluation with Different Methods}
 
+
+
+%%%%how to insert graphcis
+%blahblah
+%\begin{figure}[ht]
+%%\graphicspath{{fig/}}
+%\begin{center}
+%\includegraphics[width=0.8\textwidth]{wallpaper_2.png} 
+%\caption{blahblah} \vskip 10 pt
+%\label{fig:horse}
+%\end{center}
+%\end{figure}
+%blahblah Fig.~\ref{fig:horse} blahblah
+%%http://goo.gl/2oClXr
+%%%%end
 
 
 
