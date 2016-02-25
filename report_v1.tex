@@ -136,7 +136,7 @@ $Q_x$: Temperature of heat source at point x
 \subsection{Why should thermal conductivity of a homogeneous material vary?}
 Consider a bar of homogeneous material (constant density) which is heated at one end (constant heat source) ,a sink at the other end and the other two sides being insulated. Physics of linear heat conduction tells us that the temperature at every point in the bar should become constant after reaching steady state. But this is under the assumption that the material under consideration has perfect molecular arrangement. But in reality, nothing in this universe is perfect. There are some minor variations in the temperature even after reaching steady state, because of irregularities in the surface of the material. To model this variation, the heat conductivity, c, is made to depend on the spatial dimension. Since the density and Specific heat capacity are still held constant in equation (1.3), we categorize the material to be homogeneous.  Hence, the given problem should not be confused with parameter estimation in a heterogeneous media, where different materials with varying densities are usually fused into a single bar. 
 
-\subsection{The 2D Non linear Heat conduction equation for homogeneous materials:}
+\subsection{The 2D non-linear heat conduction equation for homogeneous materials}
 
 If c depends on the spatial dimensions, the 2D heat equation becomes
 \begin{equation}
@@ -148,7 +148,7 @@ But,
 \bigtriangledown^2(cu)=c_x \bigtriangledown^2(u)+\bigtriangledown(c) \bigtriangledown(u)+u_x \bigtriangledown^2(c)
 \end{equation}
 
-If $\Delta(c)$ is small, the variations, $\Delta(k)\approx 0$, since $\rho C_p \gg k$. Thus, $\Delta(c)$ has negligible effect on the heat equation.
+If $\Delta c$ is small, the variations, $\Delta k\approx 0$, since $\rho C_p \gg k$. Thus, $\Delta c$ has negligible effect on the heat equation.
 
 Hence,
 \begin{equation}
@@ -161,7 +161,7 @@ Therefore, the 2D heat conduction equation for homogeneous materials is
 \frac{\partial u}{\partial t}=(\frac{c_x}{\rho C_p})\bigtriangledown^2(cu)+\frac{Q_x}{\rho C_p}
 \end{equation}
 
-\section{Solution approach}
+\section{Solution Approach}
 The goal of our project is to determine the variations in conductivity along the surface of a homogeneous material.\\
 \\
 Solution steps:\\
@@ -181,7 +181,7 @@ $O_i$: Observed temperature\\
 \\
 The gradient computations using Finite difference and Adjoint mode algorithmic differentiation has been compared. We use dco for the computation of the gradient using algorithmic differentiation.
 
-\section{Need for parallelization and Adjoint mode AD}
+\section{Need for Parallelization and Adjoint Mode AD}
 Parameter estimation requires the computation of gradient for every iteration of gradient descent.\\
 For our least square estimate in equation (1.8),\\
 \begin{center}
@@ -216,10 +216,10 @@ The main model problem would be discussed in our report is a 2D heat equation. W
 
 The temperature evolution with the time would be governed by the heat equation in the form 
 \begin{equation}
-{\frac{\partial u}{\partial t}}=\alpha({\frac{\partial^2 u}{\partial x^2}}+{\frac{\partial^2 u}{\partial y^2}}),\forall{x,y,t}\in \Omega,
+{\frac{\partial u}{\partial t}}=k({\frac{\partial^2 u}{\partial x^2}}+{\frac{\partial^2 u}{\partial y^2}}),\forall{x,y,t}\in \Omega,
 \end{equation}
 
-with $\alpha = {\frac{k}{c_p \rho}}$. Here $k$ is thermal conductivity, $\rho$ is density and $c_p$ is specific heat capacity. 
+with $k = {\frac{c}{\rho C_p}}$. Here $c$ is thermal conductivity, $\rho$ is density and $C_p$ is specific heat capacity. 
 We can specify heat conductivity c for each point, i.e. heat conductivity is non-uniform. The function u must satisfy the above heat equation and we expect that the temperature at $t=T_{end}$ is determined by the time evolution of the equation.
 
 With finite difference approximation, we can approximate the partial differential equation on grids points. Using Taylor's series approximation first on x-direction spatial grid we can derive
@@ -256,13 +256,13 @@ and we get\begin{equation}
 
 In explicit finite difference scheme, the temperature evolutes explicitly on the temperature at previous time step. The explicit finite difference discretization is simply obtained by the above Tayler's series approximation: 
 \begin{equation}
-{\frac{u^{n+1}_{i,j}-u^n_{i,j}}{\tau}}=c_{i,j}({\frac{u^n_{i,j+1}-2u^n_{i,j}+u^n_{i,j-1}}{h^2}}+{\frac{u^n_{i+1,j}-2u^n_{i,j}+u^n_{i-1,j}}{h^2}}).
+{\frac{u^{n+1}_{i,j}-u^n_{i,j}}{\tau}}=k_{i,j}({\frac{u^n_{i,j+1}-2u^n_{i,j}+u^n_{i,j-1}}{h^2}}+{\frac{u^n_{i+1,j}-2u^n_{i,j}+u^n_{i-1,j}}{h^2}}).
 \end{equation}
 \[\]
 %Consider adding the grid explanation for i j n.
 This can be rearranged as following:
 \begin{equation}
-u^{n+1}_{i,j}=u^{n}_{i,j}+c_{i,j}{\frac{\tau}{h^2}}(u^n_{i,j+1}+u^n_{i+1,j}-4u^n_{i,j}+u^n_{i,j-1}+u^n_{i-1,j}).
+u^{n+1}_{i,j}=u^{n}_{i,j}+k_{i,j}{\frac{\tau}{h^2}}(u^n_{i,j+1}+u^n_{i+1,j}-4u^n_{i,j}+u^n_{i,j-1}+u^n_{i-1,j}).
 \end{equation}
 \[\]
 
@@ -305,17 +305,17 @@ u^{n+1}=u^n+h[{\frac{k_1}{6}}+{\frac{k_2}{3}}+{\frac{k_3}{3}}+{\frac{k_4}{6}}]
 \[\]
 with
 
-\begin{align}
+\begin{align*}
 k_1=f(t_n,u^n),\\
 k_2=f(t_n+{\frac{\tau}{2}},u^n+{\frac{\tau}{2}}k_1),\\
 k_2=f(t_n+{\frac{\tau}{2}},u^n+{\frac{\tau}{2}}k_2),\\
 k_2=f(t_n+\tau,u^n+\tau k_3).
-\end{align}
+\end{align*}
 The accuracy for the fourth-order Runge-Kutta method is $\mathcal{O}(\tau^5)$. However, this method also requires to evaluate the function $f$ four times per time step. One can easily see that in order to get higher order precision, we need more evaluations per time step. Generally speaking, it's not efficient to apply Runge-Kutta methods higher than fourth order. 
 
 The main benefit of explicit finite difference method is its easiness of implementation and short computing time for each iteration. However, explicit finite difference method is stable only under this condition,
 \begin{equation}
-{\frac{c_{i,j}\tau}{h^2}}\leq {\frac{1}{2}}.
+{\frac{k_{i,j}\tau}{h^2}}\leq {\frac{1}{2}}.
 \end{equation}
 \[\] Otherwise, the solution would become unstable and meaningless.\\
 
@@ -348,12 +348,12 @@ The algorithm for the Runge-Kutta is as follow:
 
 To avoid unstable solution, we can use implicit finite difference schemes. We replace forward difference in time with a backward difference and get the implicit discretization of our heat equation as
 \begin{equation}
-{\frac{u^{n+1}_{i,j}-u^n_{i,j}}{\tau}}=c_{i,j}({\frac{u^{n+1}_{i,j+1}-2u^{n+1}_{i,j}+u^{n+1}_{i,j-1}}{h^2}}+{\frac{u^{n+1}_{i+1,j}-2u^{n+1}_{i,j}+u^{n+1}_{i-1,j}}{h^2}}).
+{\frac{u^{n+1}_{i,j}-u^n_{i,j}}{\tau}}=k_{i,j}({\frac{u^{n+1}_{i,j+1}-2u^{n+1}_{i,j}+u^{n+1}_{i,j-1}}{h^2}}+{\frac{u^{n+1}_{i+1,j}-2u^{n+1}_{i,j}+u^{n+1}_{i-1,j}}{h^2}}).
 \end{equation}
  \[\]
 Once again this can be rearranged into
 \begin{equation}
-u^{n+1}_{i,j}+c_{i,j}{\frac{\tau}{h^2}}(-u^n_{i,j+1}+-u^n_{i+1,j}+4u^n_{i,j}-u^n_{i,j-1}-u^n_{i-1,j})=u^{n}_{i,j}.
+u^{n+1}_{i,j}+k_{i,j}{\frac{\tau}{h^2}}(-u^n_{i,j+1}+-u^n_{i+1,j}+4u^n_{i,j}-u^n_{i,j-1}-u^n_{i-1,j})=u^{n}_{i,j}.
 \end{equation}
 \[\]
 In this scheme, even all $u^n_{i,j}$ are known, we cannot directly compute $u^{n+1}_{i,j} $. We need to solve a linear system at each time step, since all unknown variable $u^{n+1}_{i,j}$ are coupled with each other. We can write our linear system as follow \[\] 
@@ -450,7 +450,7 @@ The algorithm for the implicit scheme iteration is as follow:
 \end{algorithm}
 
 \subsection{Jacobi iteration and Domain Decomposition}
-
+?? ??
 \section{Internal Heat Source Term}
 
 
@@ -460,7 +460,7 @@ The algorithm for the implicit scheme iteration is as follow:
 In our problem, boundary conditions are not only the temperature at borders (i.e, the north, east, south and west borders) but also heat sources inside our domain. This basically means we are trying to solve a nonhomogeneous problem instead of homogeneous one only. Our heat equation becomes
 \begin{equation}
 \begin{cases}
- {\frac{\partial u}{\partial t}}=\alpha({\frac{\partial^2 u}{\partial x^2}}+{\frac{\partial^2 u}{\partial y^2}})+{\frac{1}{c_p \rho}}q(t) \quad t>0,\\
+ {\frac{\partial u}{\partial t}}=k ({\frac{\partial^2 u}{\partial x^2}}+{\frac{\partial^2 u}{\partial y^2}})+{\frac{1}{c_p \rho}}q(t) \quad t>0,\\
  u(t=0)=0
 \end{cases}
 \end{equation}
@@ -468,7 +468,7 @@ In our problem, boundary conditions are not only the temperature at borders (i.e
 According to Duhamel's Principle, an auxiliary problem of this is   
 \begin{equation}
 \begin{cases}
- {\frac{\partial u(t;s)}{\partial t}}=\alpha({\frac{\partial^2 u(t;s)}{\partial x^2}}+{\frac{\partial^2 u(t;s)}{\partial y^2}}) \quad t>s,\\
+ {\frac{\partial u(t;s)}{\partial t}}=k ({\frac{\partial^2 u(t;s)}{\partial x^2}}+{\frac{\partial^2 u(t;s)}{\partial y^2}}) \quad t>s,\\
  u(s;s)=q(s;s).\\
 \end{cases}  
 \end{equation}
