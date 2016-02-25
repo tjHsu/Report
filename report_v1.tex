@@ -214,12 +214,12 @@ The gradient descent method requires solving the heat equation until convergence
 
 The main model problem would be discussed in our report is a 2D heat equation. We would like to know the final temperature distribution of the plate, when boundary conditions are given temperature on borders and heat source inside the domain. We approximate the derivatives of this problem with finite difference and we define an equidistant $n \times  n$ spatial grid. 
 
-The temperature evolution with the time would be governed by the heat equation in the form 
+Generalizing the non linear heat comduction equation in (1.7) to 2 dimensions, we get that the temperature evolution with the time would be governed by the heat equation in the form 
 \begin{equation}
-{\frac{\partial u}{\partial t}}=k({\frac{\partial^2 u}{\partial x^2}}+{\frac{\partial^2 u}{\partial y^2}}),\forall{x,y,t}\in \Omega,
+{\frac{\partial u}{\partial t}}=k_{x,y}\bigtriangledown^2 u,\forall{x,y,t}\in \Omega,
 \end{equation}
-
-with $k = {\frac{c}{\rho C_p}}$. Here $c$ is thermal conductivity, $\rho$ is density and $C_p$ is specific heat capacity. 
+%{\frac{\partial u}{\partial t}}=k({\frac{\partial^2 u}{\partial x^2}}+{\frac{\partial^2 u}{\partial y^2}}),\forall{x,y,t}\in \Omega,
+with $k_{x,y} = {\frac{c_{x,y}}{\rho C_p}}$. Here $c$ is thermal conductivity, $\rho$ is density and $C_p$ is specific heat capacity. 
 We can specify heat conductivity c for each point, i.e. heat conductivity is non-uniform. The function u must satisfy the above heat equation and we expect that the temperature at $t=T_{end}$ is determined by the time evolution of the equation.
 
 With finite difference approximation, we can approximate the partial differential equation on grids points. Using Taylor's series approximation first on x-direction spatial grid we can derive
@@ -481,7 +481,7 @@ The algorithm for the implicit scheme iteration is as follow:
 In our problem, boundary conditions are not only the temperature at borders (i.e, the north, east, south and west borders) but also heat sources inside our domain. This basically means we are trying to solve a nonhomogeneous problem instead of homogeneous one only. Our heat equation becomes
 \begin{equation}
 \begin{cases}
- {\frac{\partial u}{\partial t}}=k ({\frac{\partial^2 u}{\partial x^2}}+{\frac{\partial^2 u}{\partial y^2}})+{\frac{1}{c_p \rho}}q(t) \quad t>0,\\
+ {\frac{\partial u}{\partial t}}=k_{x,y} ({\frac{\partial^2 u}{\partial x^2}}+{\frac{\partial^2 u}{\partial y^2}})+{\frac{1}{C_p \rho}}q(t) \quad t>0,\\
  u(t=0)=0
 \end{cases}
 \end{equation}
@@ -489,7 +489,7 @@ In our problem, boundary conditions are not only the temperature at borders (i.e
 According to Duhamel's Principle, an auxiliary problem of this is   
 \begin{equation}
 \begin{cases}
- {\frac{\partial u(t;s)}{\partial t}}=k ({\frac{\partial^2 u(t;s)}{\partial x^2}}+{\frac{\partial^2 u(t;s)}{\partial y^2}}) \quad t>s,\\
+ {\frac{\partial u(t;s)}{\partial t}}=k_{x,y} ({\frac{\partial^2 u(t;s)}{\partial x^2}}+{\frac{\partial^2 u(t;s)}{\partial y^2}}) \quad t>s,\\
  u(s;s)=q(s;s).\\
 \end{cases}  
 \end{equation}
@@ -509,42 +509,42 @@ Furthermore, our heat source term is independent of time, so Duhamel's Principle
 
 \section{Steepest Descent Method}
 
-In order to fit parameters back to a problem, we choose steepest descent method. Given a cost function $J(\theta_1,...,\theta_n)$ on a search space, we update our parameter set,$(\theta_1,...,\theta_n)$, until our cost function $J(\theta_1,...,\theta_n)$ converges into a minimal. However, it is not guaranteed that the steepest descent method will stop at the real minimal, usually it stops at local minimal then get stuck in there.
+In order to fit parameters back to a problem, we choose steepest descent method. Given a cost function $F(c_1,...,c_n)$ on a search space, we update our parameter set,$(c_1,...,c_n)$, until our cost function $F(c_1,...,c_n)$ converges into a minimal. However, it is not guaranteed that the steepest descent method will stop at the real minimal, usually it stops at local minimal then get stuck in there.
 
-In our report, we use square error function as our cost function $J(\theta_1,...,\theta_n)$, this is to say, when our hypothesis is $h_\theta(x)=\mathbf{\theta}^T \mathbf{x}$, our cost function is
+In our report, we use square error function as our cost function $F(c_1,...,c_n)$, this is to say, when our hypothesis is $h_c(x)=\mathbf{c}^T \mathbf{x}$, our cost function is
 \begin{equation}
- J(\theta_1,...,\theta_n)= \sum\limits_{i=1}^M (h_\theta(x_i)-y_i)^2          .
+ F(c_1,...,c_n)= \sum\limits_{i=1}^M (U_i-O_i)^2          .
 \end{equation} \[\] 
 , in which $M$ is the number of our data and $y$ is the real result. The goal would be
 \begin{equation}
-\argmin_{\theta_0,...,\theta_n}J(\theta_0,...,\theta_n).
+\argmin_{c_0,...,c_n}F(c_0,...,c_n).
 \end{equation}
  \[\]  
-First, we randomly pick $\theta_0,...,\theta_n$ as our start point, then we update each $\theta$ as following
+First, we randomly pick $c_0,...,c_n$ as our start point, then we update each $c$ as following
 \begin{equation}
-\theta_j := \theta_j - \alpha{\frac{\partial J(\theta_1,...,\theta_n)}{\partial \theta_j}},
+c_j := c_j - \alpha{\frac{\partial F(c_1,...,c_n)}{\partial c_j}},
 \end{equation}
- \[\] in which $\alpha$ is the learning rate. After updating all parameters, we replace our cost function $J(\theta_1,...,\theta_n)$ with the new set of $(\theta_1,...,\theta_n)$. The next iteration will start with this new cost function and we iterate it until the cost function converge to its minimum. 
+ \[\] in which $\alpha$ is the learning rate. After updating all parameters, we replace our cost function $F(c_1,...,c_n)$ with the new set of $(c_1,...,c_n)$. The next iteration will start with this new cost function and we iterate it until the cost function converge to its minimum. 
 
 The algorithm for this is as follow:
 \begin{algorithm}[t]
 \caption{Steepest Descent Method}
   \KwIn{}
   \KwOut{}
-  Initial Guess $\theta_{0}$:$R^{n}$\\
-  STEEPEST DESCENT($\theta_{0}$)\\
-  $\theta=\theta_{0}$\\
-  Compute the gradient $\textbf{g}(\theta)$\\
+  Initial Guess $c_{0}$:$R^{n}$\\
+  STEEPEST DESCENT($c_{0}$)\\
+  $c=c_{0}$\\
+  Compute the gradient $\textbf{g}(c)$\\
   \While{$\parallel \textbf{g} \parallel > \epsilon$}
   {
-    \While{$C(\theta_{k})>C(\theta)$}    
+    \While{$F(c_{k})>C(c)$}    
     {
-	$\theta_{k}=\theta + \alpha \textbf{g}$\\
-	Compute $C(\theta_{k})$\\
+	$c_{k}=c + \alpha \textbf{g}$\\
+	Compute $F(c_{k})$\\
 	$\alpha =\frac{ \alpha}{2}$\\
     }
-    $\theta=\theta_{k}$\\
-    Compute gradient $\textbf{g}(\theta)$\\
+    $c=c_{k}$\\
+    Compute gradient $\textbf{g}(c)$\\
   }
 \end{algorithm}
 %\vspace{\fill}
