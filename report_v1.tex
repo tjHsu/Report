@@ -7,7 +7,96 @@
 \newcommand{\argmax}{\mathop{\rm arg~max}\limits}
 \newcommand{\argmin}{\mathop{\rm arg~min}\limits}
 \begin{document}
+
+{%%%
+%\sffamily 　
+\thispagestyle{empty}
+\centering
+\Large
+%~\vspace{\fill}
+{\Large Estimation of Conductivities in a 2D Non-Linear Heat Conduction Problem}
+
+
+\vspace{0.5cm}
+
+
+
+\begin{normalsize}
+Aravind Sankaran (351286)\\
+Krishnaswamy Veluswamy(11111)\\ 
+Ting-Jui Hsu(351218)
+
+\end{normalsize}
+
+
+\vspace{0.5cm}
+
+
+\begin{normalsize}
+\textit{guided by}\\
+Markus Towara
+
+\end{normalsize}
+
+\vspace{0.5cm}
+
+
+\begin{normalsize}
+Software and Tools for Computational Engineering\\ 
+Department of Computer Science\\ 
+RWTH Aachen University\\ 
+D-52056 Aachen, Germany\\
+
+\end{normalsize}
+
+\vspace{0.5cm}
+
+
+\begin{normalsize}
+\textit{for}\\
+fulfillment of the course “Simulation Science Laboratory”
+
+\end{normalsize}
+
+\vspace{0.5cm}
+
+{\normalsize $28^{th}$ Febuary 2016}
+
+\vspace{\fill}
+\pagebreak 
+
+
+%in the\\[1em]
+%\vspace{3.5cm}
+%\vspace{\fill}
+}
+
+{
+\thispagestyle{empty}
+%\sffamily
+\normalsize
+\begin{center}
+{\large \textbf{Abstract}}
+\end{center}
+The unknown distribution of the heat conductivity along the surface of a material is often important for industrial application and scientific research. It’s difficult or even not possible to directly measure the heat conductivity, while measuring temperature is not so difficult. The purpose of this project is to develop a software tool, that calibrates a 2 dimensional surface with constant density and unknown heat conductivities using experimentally obtained real world measurements of temperature distribution. This tool has been developed using C++.
+
+
+Finite difference methods have been used for solving the non-linear heat conductivity equation with Dirichlet boundary conditions and a constant heat source inside the domain. The conductivity grid resolution has been separated from the resolution of temperature distribution. The solver has been parallelized with MPI by decomposing the domain. Explicit 4 th order Runge-kutta scheme is accurate up to 4 th order in time. But the stability of this scheme is limited by the CFL conditions. For larger grid sizes, the time step required to maintain stability becomes smaller. Thus, for longer simulation time and larger grid sizes, the time required to solve the heat equation by this method becomes higher. Fully implicit method is unconditionally stable, but requires solving a linear system for each time step. This method is less scalable than explicit schemes.
+
+
+The conductivity distribution is estimated by minimizing the least square estimate of the difference in calculated and observed temperature distribution using Gradient-descent method. Gradient computations with Finite difference and Adjoint mode of Algorithmic differentiation have been compared. Calculating the gradient by Finite difference becomes tedious if the number of parameters to be estimated becomes larger. However, for the given problem, the computation time of each gradient by Adjoint mode AD is independent of the parameter size, but it is bounded by the memory availability. We have used DCO library for computing the gradient by Algorithmic differentiation.
+
+
+For the purpose of testing, and gathering results, the observed temperature has been taken from the simulation and appended with some noise which is standard normally distributed with variance 0.001. The parameter estimation along the surface of a Steel plate has been tested. However, the Steepest descent method takes too many iterations to converge for the given problem as the parameter size increases. This is because the above mentioned cost function becomes less sensitive as the conductivity points to be estimated on a given surface increases.
+
+}
+
+\tableofcontents
+\thispagestyle{empty}
+
+
 \chapter{Introduction}
+\setcounter{page}{1}
 %something need to add for the software part.
 The unknown properties and distribution of the heat conductivity is often a important for industrial application and scientific research. It's difficult or even not possible to directly measure the heat conductivity, while measuring temperature is not so difficult. With the measured temperature distribution and some parameter fitting techniques, we can determine the unknown distribution of heat conductivity.
 
@@ -212,7 +301,7 @@ Although we can specify certain thermal conductivity to each points when simulat
 \section{Speed up with MPI}
 \section{Gradient Evaluation with Different Methods}
 \section{Convergence of Steepest Descent}
-
+%convergence reach a plator and wait long to decrease again.
 
 
 
