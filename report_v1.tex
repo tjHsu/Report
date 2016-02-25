@@ -158,7 +158,7 @@ Hence,
 Therefore, the 2D heat conduction equation for homogeneous materials is 
 
 \begin{equation}
-\frac{\partial u}{\partial t}=(\frac{c_x}{\rho C_p})\bigtriangledown^2(cu)+\frac{Q_x}{\rho C_p}
+\frac{\partial u}{\partial t}=(\frac{c_x}{\rho C_p})\bigtriangledown^2(u)+\frac{Q_x}{\rho C_p}
 \end{equation}
 
 \section{Solution Approach}
@@ -411,9 +411,19 @@ As we state in the beginning, the major advantage of implicit finite difference 
 \subsection{Jacobi Iteration and Domain Decomposition}
 
 In order to improve the efficiency of the code running in the parallelly, we can divide the domain in to different types and assign the division to each of the processor to work on that part of the code or domain. However, the decomposition of domain is of purely personal choice and depends on the user, who programs it. Here we have used 1D domain desomposition, such that the entire domain is split in to rows depending on the number of processors, and the processors act on that part of the domain assigned to them. Below the figure represents the decomposition of the domain.
+\pagebreak
+\begin{figure}[h]
+%\graphicspath{{fig/}}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{Domaindecomposition} 
+\caption{Domain Decomposition} \vskip 10 pt
+\label{fig:domain}
+\end{center}
+\end{figure}
+
 
 The pseudo code for the domain decomposition is such that
-\begin{algorithm}
+\begin{algorithm}[h]
 \caption{Runge-Kutta Scheme with Domain Decomposition}
   \KwIn{}
   \KwOut{}
@@ -435,13 +445,13 @@ The pseudo code for the domain decomposition is such that
   }
 
 \end{algorithm}
-\pagebreak
+
 
 There at each iteration over the time, we send top row to the previous rank and recieve it in the last ghost row from previous rank. And we also send the bottom row to the next rank and receive it in the top ghost row of the previous rank. This is how the domain is decomposed and the communication of data between the processors occurs.\\
 According to the same manner, we can also use it on fully implicit method with Jacobi iteration.\\
 The algorithm for the implicit scheme iteration is as follow:
 
-\begin{algorithm}
+\begin{algorithm}[h]
   \caption{Implicit Scheme Jacobi Iteration}
   \KwIn{}
   \KwOut{}
@@ -459,7 +469,8 @@ The algorithm for the implicit scheme iteration is as follow:
     t=t+dt
   }
 \end{algorithm}
-\pagebreak 
+
+
 
 \section{Internal Heat Source Term}
 
