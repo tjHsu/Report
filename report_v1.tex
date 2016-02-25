@@ -315,34 +315,10 @@ The accuracy for the fourth-order Runge-Kutta method is $\mathcal{O}(\tau^5)$. H
 
 The main benefit of explicit finite difference method is its easiness of implementation and short computing time for each iteration. However, explicit finite difference method is stable only under this condition,
 \begin{equation}
-{\frac{k_{i,j}\tau}{h^2}}\leq {\frac{1}{2}}.
+{\frac{k_{i,j}\tau}{h^2}}\leq {\frac{1}{4}}.
 \end{equation}
 \[\] Otherwise, the solution would become unstable and meaningless.\\
 
-The algorithm for the Runge-Kutta is as follow:
-\begin{algorithm}
-\caption{Runge-Kutta Scheme with Domain Decomposition}
-  \KwIn{}
-  \KwOut{}
-  
-  \While{$t<\text{TIME}$}
-  {
-
-	Loop i: 0:my\_end\;	
-    \Indp Loop j: 0:my\_end\;
-      	\Indp $u_{k+1}$=Runge-Kutta Update($u_{k}$)\;
-    \bigskip 
-    \Indm \Indm send the top row to the previous rank\\
-	receive the last ghost row from the next rank\\
-	\bigskip 		
-	send the bottom row to the next rank\\
-	receive the top ghost row from the previous rank\\   
-	\bigskip
-    t=t+dt
-  }
-
-
-\end{algorithm}
 
 \subsection{Fully Implicit Scheme}
 
@@ -428,6 +404,41 @@ u^{n}_{bottom}\\
 
 As we state in the beginning, the major advantage of implicit finite difference methods is that there is no certain condition for stableness. Therefore, we don't have restriction on the time step size, even if we have high resolution on the spatial part. However, the implicit finite difference method is more computational intensive on each iteration.
 
+
+
+
+
+\subsection{Jacobi Iteration and Domain Decomposition}
+
+In order to improve the efficiency of the code running in the parallelly, we can divide the domain in to different types and assign the division to each of the processor to work on that part of the code or domain. However, the decomposition of domain is of purely personal choice and depends on the user, who programs it. Here we have used 1D domain desomposition, such that the entire domain is split in to rows depending on the number of processors, and the processors act on that part of the domain assigned to them. Below the figure represents the decomposition of the domain.
+
+The pseudo code for the domain decomposition is such that
+\begin{algorithm}
+\caption{Runge-Kutta Scheme with Domain Decomposition}
+  \KwIn{}
+  \KwOut{}
+  
+  \While{$t<\text{TIME}$}
+  {
+
+	Loop i: 0:my\_end\;	
+    \Indp Loop j: 0:my\_end\;
+      	\Indp $u_{k+1}$=Runge-Kutta Update($u_{k}$)\;
+    \bigskip 
+    \Indm \Indm send the top row to the previous rank\\
+	receive the last ghost row from the next rank\\
+	\bigskip 		
+	send the bottom row to the next rank\\
+	receive the top ghost row from the previous rank\\   
+	\bigskip
+    t=t+dt
+  }
+
+\end{algorithm}
+\pagebreak
+
+There at each iteration over the time, we send top row to the previous rank and recieve it in the last ghost row from previous rank. And we also send the bottom row to the next rank and receive it in the top ghost row of the previous rank. This is how the domain is decomposed and the communication of data between the processors occurs.\\
+According to the same manner, we can also use it on fully implicit method with Jacobi iteration.\\
 The algorithm for the implicit scheme iteration is as follow:
 
 \begin{algorithm}
@@ -448,9 +459,8 @@ The algorithm for the implicit scheme iteration is as follow:
     t=t+dt
   }
 \end{algorithm}
+\pagebreak 
 
-\subsection{Jacobi iteration and Domain Decomposition}
-?? ??
 \section{Internal Heat Source Term}
 
 
@@ -506,7 +516,7 @@ First, we randomly pick $\theta_0,...,\theta_n$ as our start point, then we upda
  \[\] in which $\alpha$ is the learning rate. After updating all parameters, we replace our cost function $J(\theta_1,...,\theta_n)$ with the new set of $(\theta_1,...,\theta_n)$. The next iteration will start with this new cost function and we iterate it until the cost function converge to its minimum. 
 
 The algorithm for this is as follow:
-\begin{algorithm}
+\begin{algorithm}[t]
 \caption{Steepest Descent Method}
   \KwIn{}
   \KwOut{}
@@ -526,9 +536,9 @@ The algorithm for this is as follow:
     Compute gradient $\textbf{g}(\theta)$\\
   }
 \end{algorithm}
-
-
-\section{Separating the Conductivity resolution from temperature distribution resolution}
+%\vspace{\fill}
+\pagebreak
+\section{Separating the Conductivity Resolution from Temperature Distribution Resolution}
 %Graph.
 Although we can specify certain thermal conductivity to each points when simulating, at the beginning we are not going to fit parameter on each point. Instead, we divide our domain in to several block and the block size can be specified. The first reason is that usually the original conductivity is not different at each point but block. Second, since in estimation step, we doesn't know the distribution of the initial conductivity, rashly set the resolution to the grid point may cause overfitting and need more computation time. It would be proper to start with big block, and depending on the accuracy requirement, we can reduce the size of the block until we get the expected result. 
 
@@ -561,8 +571,8 @@ F(x,\bar{y}):=\bar{y}F'(x)=\bar{x}
 \[\]
 $\text{The computational cost of }F'(x)\, \text{is at} \, O(output) \cdot cost(F)$. Different from two methods above, computing gradient with adjoint mode, the computational cost is linear to the output. For our case, it means we can get full gradient in one run. Since accuracy is not the important issue for us, we will mainly use adjoint mode to compute gradient for steepest descent method. 
      
-\subsection{Gradient computation using Finite difference}
-\subsection{Gradient compuataion using Algorithmic differentiation}
+\subsection{Gradient computation using finite difference}
+\subsection{Gradient compuataion using algorithmic differentiation}
 \subsection{Comparison of gradient computation time by FD and Adjoint AD}
 \section{Convergence of Steepest Descent}
 %convergence reach a plator and wait long to decrease again.
