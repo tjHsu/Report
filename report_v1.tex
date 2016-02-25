@@ -78,15 +78,12 @@ fulfillment of the course “Simulation Science Laboratory”
 \begin{center}
 {\large \textbf{Abstract}}
 \end{center}
-The unknown distribution of the heat conductivity along the surface of a material is often important for industrial application and scientific research. It’s difficult or even not possible to directly measure the heat conductivity, while measuring temperature is not so difficult. The purpose of this project is to develop a software tool, that calibrates a 2 dimensional surface with constant density and unknown heat conductivities using experimentally obtained real world measurements of temperature distribution. This tool has been developed using C++.
-
-
-Finite difference methods have been used for solving the non-linear heat conductivity equation with Dirichlet boundary conditions and a constant heat source inside the domain. The conductivity grid resolution has been separated from the resolution of temperature distribution. The solver has been parallelized with MPI by decomposing the domain. Explicit 4 th order Runge-kutta scheme is accurate up to 4 th order in time. But the stability of this scheme is limited by the CFL conditions. For larger grid sizes, the time step required to maintain stability becomes smaller. Thus, for longer simulation time and larger grid sizes, the time required to solve the heat equation by this method becomes higher. Fully implicit method is unconditionally stable, but requires solving a linear system for each time step. This method is less scalable than explicit schemes.
-
-
-The conductivity distribution is estimated by minimizing the least square estimate of the difference in calculated and observed temperature distribution using Gradient-descent method. Gradient computations with Finite difference and Adjoint mode of Algorithmic differentiation have been compared. Calculating the gradient by Finite difference becomes tedious if the number of parameters to be estimated becomes larger. However, for the given problem, the computation time of each gradient by Adjoint mode AD is independent of the parameter size, but it is bounded by the memory availability. We have used DCO library for computing the gradient by Algorithmic differentiation.
-
-
+The unknown distribution of the heat conductivity along the surface of a material is often important for industrial application and scientific research. It’s difficult or even not possible to directly measure the heat conductivity, while measuring temperature is not so difficult. The purpose of this project is to develop a software tool, that calibrates a 2 dimensional surface with constant density and unknown heat conductivities using experimentally obtained real world measurements of temperature distribution. This tool has been developed using C++.\\
+\\
+Finite difference methods have been used for solving the non-linear heat conductivity equation with Dirichlet boundary conditions and a constant heat source inside the domain. The conductivity grid resolution has been separated from the resolution of temperature distribution. The solver has been parallelized with MPI by decomposing the domain. Explicit $4^{th}$ order Runge-kutta scheme is accurate up to $4^{th}$ order in time. But the stability of this scheme is limited by the CFL conditions. For larger grid sizes, the time step required to maintain stability becomes smaller. Thus, for longer simulation time and larger grid sizes, the time required to solve the heat equation by this method becomes higher. Fully implicit method is unconditionally stable, but requires solving a linear system for each time step. This method is less scalable than explicit schemes.\\
+\\
+The conductivity distribution is estimated by minimizing the least square estimate of the difference in calculated and observed temperature distribution using Gradient-descent method. Gradient computations with Finite difference and Adjoint mode of Algorithmic differentiation have been compared. Calculating the gradient by Finite difference becomes tedious if the number of parameters to be estimated becomes larger. However, for the given problem, the computation time of each gradient by Adjoint mode AD is independent of the parameter size, but it is bounded by the memory availability. We have used DCO library for computing the gradient by Algorithmic differentiation.\\
+\\
 For the purpose of testing, and gathering results, the observed temperature has been taken from the simulation and appended with some noise which is standard normally distributed with variance 0.001. The parameter estimation along the surface of a Steel plate has been tested. However, the Steepest descent method takes too many iterations to converge for the given problem as the parameter size increases. This is because the above mentioned cost function becomes less sensitive as the conductivity points to be estimated on a given surface increases.
 
 }
@@ -97,16 +94,116 @@ For the purpose of testing, and gathering results, the observed temperature has 
 
 \chapter{Introduction}
 \setcounter{page}{1}
+To estimate the variation in conductivity along the surface of a homogeneous material*, the heat conduction along the 2D surface have to be simulated. This chapter explains the details of the problem, the solution approaches and the bottlenecks.\\
+
+\begin{small}
+\begin{flushleft}
+ *  We assume constant density along the surface of the material under consideration
+ \end{flushleft} 
+\end{small}
+
+\section{Problem Definition}
+Heat is an energy that flows from higher temperature to lower temperature. Conduction is a method of heat transfer that occurs by  the movement of electrons from atom to atom .Thus, densely packed materials have higher conduction. The heat conduction in 2D can be modeled using the following partial differential equation:
+\begin{equation}
+\frac{\partial u}{\partial t}=k \bigtriangledown^2(u)
+\end{equation}
+where,\\
+$u$: Temperature\\
+$t$: Time\\
+$k$: Thermal diffusivity of the material\\
+\\
+Heat conduction depends on the property of the material, and the “Thermal diffusivity (k)” encodes this dependence in the above heat equation. Furthermore, thermal diffusivity holds the following equation: 
+
+\begin{equation}
+k=\frac{c}{\rho C_p}
+\end{equation}
+where,\\
+$c$: Thermal conductivity\\
+$\rho$: Density\\
+$C_p$: Specific heat capacity\\
+\\
+Thermal conductivity is the measure of the quantity of thermal energy which flows through a conductor, in a given time, through a given volume and temperature difference. Hence it is a property of the material.
+
+If we consider the heat source term, the equation becomes,
+\begin{equation}
+\frac{\partial u}{\partial t}=(\frac{c}{\rho C_p})\bigtriangledown^2(u)+\frac{Q_x}{\rho C_p}
+\end{equation}
+where,\\
+$Q_x$: Temperature of heat source at point x
+
+\subsection{Why should thermal conductivity of a homogeneous material vary?}
+Consider a bar of homogeneous material (constant density) which is heated at one end (constant heat source) ,a sink at the other end and the other two sides being insulated. Physics of linear heat conduction tells us that the temperature at every point in the bar should become constant after reaching steady state. But this is under the assumption that the material under consideration has perfect molecular arrangement. But in reality, nothing in this universe is perfect. There are some minor variations in the temperature even after reaching steady state, because of irregularities in the surface of the material. To model this variation, the heat conductivity, c, is made to depend on the spatial dimension. Since the density and Specific heat capacity are still held constant in equation (1.3), we categorize the material to be homogeneous.  Hence, the given problem should not be confused with parameter estimation in a heterogeneous media, where different materials with varying densities are usually fused into a single bar. 
+
+\subsection{The 2D Non linear Heat conduction equation for homogeneous materials:}
+
+If c depends on the spatial dimensions, the 2D heat equation becomes
+\begin{equation}
+\frac{\partial u}{\partial t}=(\frac{1}{\rho C_p})\bigtriangledown^2(cu)+\frac{Q_x}{\rho C_p}
+\end{equation}
+
+But, 
+\begin{equation}
+\bigtriangledown^2(cu)=c_x \bigtriangledown^2(u)+\bigtriangledown(c) \bigtriangledown(u)+u_x \bigtriangledown^2(c)
+\end{equation}
+
+If $\Delta(c)$ is small, the variations, $\Delta(k)\approx 0$, since $\rho C_p \gg k$. Thus, $\Delta(c)$ has negligible effect on the heat equation.
+
+Hence,
+\begin{equation}
+\bigtriangledown^2(cu) \approx c_x \bigtriangledown^2(u)
+\end{equation}
+
+Therefore, the 2D heat conduction equation for homogeneous materials is 
+
+\begin{equation}
+\frac{\partial u}{\partial t}=(\frac{c_x}{\rho C_p})\bigtriangledown^2(cu)+\frac{Q_x}{\rho C_p}
+\end{equation}
+
+\section{Solution approach}
+The goal of our project is to determine the variations in conductivity along the surface of a homogeneous material.\\
+\\
+Solution steps:\\
+\\
+1)Numerically solve the heat equation using finite difference\\
+The above heat equation is discretized in an equidistant 2D grid, and has been solved using explicit Runge-kutta scheme and fully implicit scheme. Each method has its own advantages and disadvantages, which have been discussed in detail. The grid is decomposed and the data is distributed among the processors. Each processor works on its local data and the boundary data in the ghost cells are communicated using MPI \\
+\\
+2) Estimating the Conductivities\\
+To estimate the vector of conductivities, gradient descent approach has been used to minimize the following least square estimate.
+
+\begin{equation}
+\argmin_{\substack{U}} y= \sum_{\substack{i}}(U_i-O_i)^2
+\end{equation}
+Where,\\
+$U_i$: Final temperature computed by the solver\\
+$O_i$: Observed temperature\\
+\\
+The gradient computations using Finite difference and Adjoint mode algorithmic differentiation has been compared. We use dco for the computation of the gradient using algorithmic differentiation.
+
+\section{Need for parallelization and Adjoint mode AD}
+Parameter estimation requires the computation of gradient for every iteration of gradient descent.\\
+For our least square estimate in equation (1.8),\\
+\begin{center}
+$f: R^N\mapsto R$\\
+\end{center}
+Where,\\
+$N =n\ast n$\\
+$n$= grid size in each dimension \\
+\\
+The gradient computation by finite difference requires solving the heat equation N times for every gradient. Hence for larger grid sizes, we have larger number of parameters to estimate, which means, the computation time for each gradient increases with increasing parameter size.
+
+If we compute the gradient by adjoint method of Algorithmic differentiation, the heat equation have to be solved M times, where M is the size of the output vector. For our case, M = 1. Hence we get the gradient in a single run of the solver. However, this requires storing the entire graph of computations and reversing the computation flow. Hence this method is bounded by the amount of available memory. By parallelizing the heat equation and decomposing the domain in a distributed memory architecture, we acquire more memory for computing the adjoint, thereby pushing its upper bound. 
+
+The gradient descent method requires solving the heat equation until convergence. For larger grid sizes, the time required for every solution increases. Hence parallelizing the heat equation is crucial for obtaining the parameters as quickly as possible.
 %something need to add for the software part.
-The unknown properties and distribution of the heat conductivity is often a important for industrial application and scientific research. It's difficult or even not possible to directly measure the heat conductivity, while measuring temperature is not so difficult. With the measured temperature distribution and some parameter fitting techniques, we can determine the unknown distribution of heat conductivity.
-
-Our project can be divided into two parts, simulation part and estimation part. In simulation part, we use fully implicit method and explicit Runga Kutta method to solve a 2 dimension heat equation. In estimate part, we take the result from the simulation as input and use steepest descent method to fit back heat conductivity.
- 
-Each of these methods has its own limitation. Explicit method is easy to implement, but not stable. Implicit method is guarantee to be stable, but it is usually computational intensive. For estimation, steepest descent method does not always give the best parameter set. We would discuss more details of these limitations later in the report. 
- 
-We mainly use C++ for our report. For Library, we use Message Passing Interface (MPI) for paralleling  and using dco library for algorithmic differentiation.
-
-The purpose of this report is to study how precise and stable can steepest descent method fit back the parameter by showing some numerical experiments and also trying to accelerate iterations and increase the precision of the final result.  
+%The unknown properties and distribution of the heat conductivity is often a important for industrial application and scientific research. It's difficult or even not possible to directly measure the heat conductivity, while measuring temperature is not so difficult. With the measured temperature distribution and some parameter fitting techniques, we can determine the unknown distribution of heat conductivity.
+%
+%Our project can be divided into two parts, simulation part and estimation part. In simulation part, we use fully implicit method and explicit Runga Kutta method to solve a 2 dimension heat equation. In estimate part, we take the result from the simulation as input and use steepest descent method to fit back heat conductivity.
+% 
+%Each of these methods has its own limitation. Explicit method is easy to implement, but not stable. Implicit method is guarantee to be stable, but it is usually computational intensive. For estimation, steepest descent method does not always give the best parameter set. We would discuss more details of these limitations later in the report. 
+% 
+%We mainly use C++ for our report. For Library, we use Message Passing Interface (MPI) for paralleling  and using dco library for algorithmic differentiation.
+%
+%The purpose of this report is to study how precise and stable can steepest descent method fit back the parameter by showing some numerical experiments and also trying to accelerate iterations and increase the precision of the final result.  
 
 \chapter{Problem Setting and Solution Methods}
 \section{Problem Formulation}
