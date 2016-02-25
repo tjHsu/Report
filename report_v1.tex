@@ -115,63 +115,130 @@ The purpose of this report is to study how precise and stable can steepest desce
 
 The main model problem would be discussed in our report is a 2D heat equation. We would like to know the final temperature distribution of the plate, when boundary conditions are given temperature on borders and heat source inside the domain. We approximate the derivatives of this problem with finite difference and we define an equidistant $n \times  n$ spatial grid. 
 
-The temperature evolution with the time would be governed by the heat equation in the form \[{\frac{\partial u}{\partial t}}=\alpha({\frac{\partial^2 u}{\partial x^2}}+{\frac{\partial^2 u}{\partial y^2}}),\forall{x,y,t}\in \Omega,\]with $\alpha = {\frac{k}{c_p \rho}}$. Here $k$ is thermal conductivity, $\rho$ is density and $c_p$ is specific heat capacity. 
+The temperature evolution with the time would be governed by the heat equation in the form 
+\begin{equation}
+{\frac{\partial u}{\partial t}}=\alpha({\frac{\partial^2 u}{\partial x^2}}+{\frac{\partial^2 u}{\partial y^2}}),\forall{x,y,t}\in \Omega,
+\end{equation}
+
+with $\alpha = {\frac{k}{c_p \rho}}$. Here $k$ is thermal conductivity, $\rho$ is density and $c_p$ is specific heat capacity. 
 We can specify heat conductivity c for each point, i.e. heat conductivity is non-uniform. The function u must satisfy the above heat equation and we expect that the temperature at $t=T_{end}$ is determined by the time evolution of the equation.
 
 With finite difference approximation, we can approximate the partial differential equation on grids points. Using Taylor's series approximation first on x-direction spatial grid we can derive
-\[u(x_i+h,t^n)=u(x_i,t^n)+hu_x(x_i,t^n)+{\frac{h^2}{2}}u_{xx}(x_i,t^n)+{\frac{h^3}{6}}u_{xxx}(x_i,t^n)+\mathcal{O}(h^4)\]
-\[u(x_i-h,t^n)=u(x_i,t^n)-hu_x(x_i,t^n)+{\frac{h^2}{2}}u_{xx}(x_i,t^n)-{\frac{h^3}{6}}u_{xxx}(x_i,t^n)+\mathcal{O}(h^4) .\]
+\begin{equation}
+u(x_i+h,t^n)=u(x_i,t^n)+hu_x(x_i,t^n)+{\frac{h^2}{2}}u_{xx}(x_i,t^n)+{\frac{h^3}{6}}u_{xxx}(x_i,t^n)+\mathcal{O}(h^4)
+\end{equation}
+%\[\]
+\begin{equation}
+u(x_i-h,t^n)=u(x_i,t^n)-hu_x(x_i,t^n)+{\frac{h^2}{2}}u_{xx}(x_i,t^n)-{\frac{h^3}{6}}u_{xxx}(x_i,t^n)+\mathcal{O}(h^4) .
+\end{equation}
+%\[\]
 Adding up two equation and we get
-\[u_{xx}(x_i,t^n)={\frac{u(x_i+h,t^n)-2u(x_i,t^n)+u(x_i,t^n)}{h^2}}+\mathcal{O}(h^2)\]
+\begin{equation}
+u_{xx}(x_i,t^n)={\frac{u(x_i+h,t^n)-2u(x_i,t^n)+u(x_i,t^n)}{h^2}}+\mathcal{O}(h^2)
+\end{equation}
+%\[\]
 and same for y-direction
-\[u_{yy}(y_i,t^n)={\frac{u(y_i+h,t^n)-2u(y_i,t^n)+u(y_i,t^n)}{h^2}}+\mathcal{O}(h^2).\]
+\begin{equation}
+u_{yy}(y_i,t^n)={\frac{u(y_i+h,t^n)-2u(y_i,t^n)+u(y_i,t^n)}{h^2}}+\mathcal{O}(h^2).
+\end{equation}
+%\[\]
 For time difference, we can also write a Taylor's series approximation.
-\[u(x_i,t^n+\tau)=u(x_i,t^n)+\tau u_t(x_i,t^n)+\mathcal{O}(\tau^2) \]and we get \[{\frac{u(x_i,t^n+\tau)-u(xi,t^n)}{\tau}}=u_t(x_i,t^n)+\mathcal{O}(\tau).\] 
+\begin{equation}
+u(x_i,t^n+\tau)=u(x_i,t^n)+\tau u_t(x_i,t^n)+\mathcal{O}(\tau^2) 
+\end{equation}
+%\[\]
+and we get\begin{equation}
+{\frac{u(x_i,t^n+\tau)-u(xi,t^n)}{\tau}}=u_t(x_i,t^n)+\mathcal{O}(\tau).
+\end{equation} %\[\] 
 
 \section{Explicit Scheme}
 %change u into vertor bold font?
 %\mathbf{u}
 
-In explicit finite difference scheme, the temperature evolutes explicitly on the temperature at previous time step. The explicit finite difference discretization is simply obtained by the above Tayler's series approximation: \[{\frac{u^{n+1}_{i,j}-u^n_{i,j}}{\tau}}=c_{i,j}({\frac{u^n_{i,j+1}-2u^n_{i,j}+u^n_{i,j-1}}{h^2}}+{\frac{u^n_{i+1,j}-2u^n_{i,j}+u^n_{i-1,j}}{h^2}}).\]
+In explicit finite difference scheme, the temperature evolutes explicitly on the temperature at previous time step. The explicit finite difference discretization is simply obtained by the above Tayler's series approximation: 
+\begin{equation}
+{\frac{u^{n+1}_{i,j}-u^n_{i,j}}{\tau}}=c_{i,j}({\frac{u^n_{i,j+1}-2u^n_{i,j}+u^n_{i,j-1}}{h^2}}+{\frac{u^n_{i+1,j}-2u^n_{i,j}+u^n_{i-1,j}}{h^2}}).
+\end{equation}
+\[\]
 %Consider adding the grid explanation for i j n.
-This can be rearranged as following:\[u^{n+1}_{i,j}=u^{n}_{i,j}+c_{i,j}{\frac{\tau}{h^2}}(u^n_{i,j+1}+u^n_{i+1,j}-4u^n_{i,j}+u^n_{i,j-1}+u^n_{i-1,j}).\]
+This can be rearranged as following:
+\begin{equation}
+u^{n+1}_{i,j}=u^{n}_{i,j}+c_{i,j}{\frac{\tau}{h^2}}(u^n_{i,j+1}+u^n_{i+1,j}-4u^n_{i,j}+u^n_{i,j-1}+u^n_{i-1,j}).
+\end{equation}
+\[\]
 
 We now get a relation between space and time derivatives at each $(x,t)\in \Omega$ with a discrete approximation. As long as we know $u^n_{i\pm 1,j}$,$u^n_{i,j}$, and $u^n_{i,j\pm 1}$, we can compute $u^{n+1}_{i,j}$ for the following time step. The scheme is completely defined when we apply initial conditions and boundary conditions on it.
 
 In order to get higher accuracy, we implement Runge-Kutta method instead of first-order explicit method in our problem. As first-order explicit method, Runge-Kutta method is still a single-step method, with multiple stages per step however. 
 
-To derive Runge-Kutta, once again we start from Taylor series approximation, \[u(t+\tau)=u(t)+\tau u'(t)+{\frac{\tau^2}{2}}u''(t)+\mathcal{O}(\tau^3).\]
-Then we set first derivative as $u'(t)=f(t,u(t))$. From this we can get our second derivative by differentiating it, which is \[u''(t)=f_t(t,u)+f_u(t,u)u'(t)=f_t(t,u)+f_u(t,u)f(t,u).\] We substitute these into our Taylor series approximation and rewrite as following,
-\begin{align*} %without star align will index equation.
+To derive Runge-Kutta, once again we start from Taylor series approximation, 
+\begin{equation}
+u(t+\tau)=u(t)+\tau u'(t)+{\frac{\tau^2}{2}}u''(t)+\mathcal{O}(\tau^3).
+\end{equation}
+\[\]
+Then we set first derivative as $u'(t)=f(t,u(t))$. From this we can get our second derivative by differentiating it, which is
+\begin{equation}
+u''(t)=f_t(t,u)+f_u(t,u)u'(t)=f_t(t,u)+f_u(t,u)f(t,u).
+\end{equation}
+ \[\] We substitute these into our Taylor series approximation and rewrite as following,
+\begin{align} %without star align will index equation.
 u(t+\tau)
 =u(t)+\tau f(t,u)+{\frac{\tau^2}{2}}[f_t(t,u)+f_u(t,u)f(t,u)]+\mathcal{O}(\tau^3)\\
 =u(t)+{\frac{\tau}{2}} f(t,u)+{\frac{\tau}{2}}[f(t,u)+\tau f_t(t,u)+\tau f_u(t,u)f(t,u)]+\mathcal{O}(\tau^3).  
-\end{align*}
-With multivariate Taylor series approximation, we know $f(t+\tau,u+\tau f(t,u))=f(t,u)+\tau f_t(t,y)+\tau f_u(t,u)f(t,u)+\mathcal{O}(h^2).$ As a result, we get \[u(t+\tau)=u(t)+{\frac{\tau}{2}}f(t,u)+{\frac{\tau}{2}}f(t+\tau,u+\tau f(t,u))+\mathcal{O}(\tau^3)\] and in simple numerical form \[u^n+1=u^n+\tau ({\frac{1}{2}}k_1+{\frac{1}{2}}k_2),\]with 
-\begin{align*}
+\end{align}
+With multivariate Taylor series approximation, we know $f(t+\tau,u+\tau f(t,u))=f(t,u)+\tau f_t(t,y)+\tau f_u(t,u)f(t,u)+\mathcal{O}(h^2).$ As a result, we get
+\begin{equation}
+u(t+\tau)=u(t)+{\frac{\tau}{2}}f(t,u)+{\frac{\tau}{2}}f(t+\tau,u+\tau f(t,u))+\mathcal{O}(\tau^3)
+\end{equation}
+ \[\] and in simple numerical form
+\begin{equation}
+ u^n+1=u^n+\tau ({\frac{1}{2}}k_1+{\frac{1}{2}}k_2),
+ \end{equation} 
+\[\]with 
+\begin{align}
 k_1=f(t_n,u^n),\\
 k_2 = f(t_n+\tau, u^n+\tau k_1).
-\end{align*}
-This is so called second-order Runge-Kutta method. However, to gain higher accuracy we use fourthe-order Runge-Kutta method and the method is as follow,\[u^{n+1}=u^n+h[{\frac{k_1}{6}}+{\frac{k_2}{3}}+{\frac{k_3}{3}}+{\frac{k_4}{6}}]\]
+\end{align}
+This is so called second-order Runge-Kutta method. However, to gain higher accuracy we use fourthe-order Runge-Kutta method and the method is as follow,
+\begin{equation}
+u^{n+1}=u^n+h[{\frac{k_1}{6}}+{\frac{k_2}{3}}+{\frac{k_3}{3}}+{\frac{k_4}{6}}]
+\end{equation}
+\[\]
 with
-\begin{align*}
+
+\begin{align}
 k_1=f(t_n,u^n),\\
 k_2=f(t_n+{\frac{\tau}{2}},u^n+{\frac{\tau}{2}}k_1),\\
 k_2=f(t_n+{\frac{\tau}{2}},u^n+{\frac{\tau}{2}}k_2),\\
 k_2=f(t_n+\tau,u^n+\tau k_3).
-\end{align*}
+\end{align}
 The accuracy for the fourth-order Runge-Kutta method is $\mathcal{O}(\tau^5)$. However, this method also requires to evaluate the function $f$ four times per time step. One can easily see that in order to get higher order precision, we need more evaluations per time step. Generally speaking, it's not efficient to apply Runge-Kutta methods higher than fourth order. 
 
-The main benefit of explicit finite difference method is its easiness of implementation and short computing time for each iteration. However, explicit finite difference method is stable only under this condition,\[{\frac{c_{i,j}\tau}{h^2}}\leq {\frac{1}{2}}.\] Otherwise, the solution would become unstable and meaningless.
+The main benefit of explicit finite difference method is its easiness of implementation and short computing time for each iteration. However, explicit finite difference method is stable only under this condition,
+\begin{equation}
+{\frac{c_{i,j}\tau}{h^2}}\leq {\frac{1}{2}}.
+\end{equation}
+\[\] Otherwise, the solution would become unstable and meaningless.
 
 \section{Implicit Scheme}
 
-To avoid unstable solution, we can use implicit finite difference schemes. We replace forward difference in time with a backward difference and get the implicit discretization of our heat equation as \[{\frac{u^{n+1}_{i,j}-u^n_{i,j}}{\tau}}=c_{i,j}({\frac{u^{n+1}_{i,j+1}-2u^{n+1}_{i,j}+u^{n+1}_{i,j-1}}{h^2}}+{\frac{u^{n+1}_{i+1,j}-2u^{n+1}_{i,j}+u^{n+1}_{i-1,j}}{h^2}}).\]
+To avoid unstable solution, we can use implicit finite difference schemes. We replace forward difference in time with a backward difference and get the implicit discretization of our heat equation as
+\begin{equation}
+{\frac{u^{n+1}_{i,j}-u^n_{i,j}}{\tau}}=c_{i,j}({\frac{u^{n+1}_{i,j+1}-2u^{n+1}_{i,j}+u^{n+1}_{i,j-1}}{h^2}}+{\frac{u^{n+1}_{i+1,j}-2u^{n+1}_{i,j}+u^{n+1}_{i-1,j}}{h^2}}).
+\end{equation}
+ \[\]
 Once again this can be rearranged into
-\[u^{n+1}_{i,j}+c_{i,j}{\frac{\tau}{h^2}}(-u^n_{i,j+1}+-u^n_{i+1,j}+4u^n_{i,j}-u^n_{i,j-1}-u^n_{i-1,j})=u^{n}_{i,j}.\]
-In this scheme, even all $u^n_{i,j}$ are known, we cannot directly compute $u^{n+1}_{i,j} $. We need to solve a linear system at each time step, since all unknown variable $u^{n+1}_{i,j}$ are coupled with each other. We can write our linear system as follow \[AU^{n+1}=U^{n}\] 
+\begin{equation}
+u^{n+1}_{i,j}+c_{i,j}{\frac{\tau}{h^2}}(-u^n_{i,j+1}+-u^n_{i+1,j}+4u^n_{i,j}-u^n_{i,j-1}-u^n_{i-1,j})=u^{n}_{i,j}.
+\end{equation}
+\[\]
+In this scheme, even all $u^n_{i,j}$ are known, we cannot directly compute $u^{n+1}_{i,j} $. We need to solve a linear system at each time step, since all unknown variable $u^{n+1}_{i,j}$ are coupled with each other. We can write our linear system as follow \[\] 
+\begin{equation}
+AU^{n+1}=U^{n}
+\end{equation}
 
-\[U^{n+1}=\begin{bmatrix}
+\begin{equation}
+U^{n+1}=\begin{bmatrix}
 u^{n+1}_{1,1}\\
 \vdots\\
 u^{n+1}_{1,j_{max}}\\
@@ -181,34 +248,46 @@ u^{n+1}_{2,j_{max}}\\
 \vdots\\
 u^{n+1}_{i_{max},j_{max}}\\
 \end{bmatrix}
+\end{equation}
+\[
 \]
 
-\[A=\begin{bmatrix}
+\begin{equation}
+A=\begin{bmatrix}
 D_{(i=1)} & E_{(i=1)} & 0  & \cdots  & 0  \\
 E_{(i=2)} & D_{(i=2)} & E_{(i=2)} &   & \vdots  \\
   & \ddots & \ddots &\ddots & \\
  \vdots &   & E_{(i=i_{max}-1)} & D_{(i=i_{max}-1)} & E_{(i=i_{max}-1)} \\
  0 & \cdots  &   & E_{(i=i_{max})} & D_{(i=i_{max})}    
 \end{bmatrix}
+\end{equation}
+\[
 \]
 
-\[E=\begin{bmatrix}
+\begin{equation}
+E=\begin{bmatrix}
 -{\frac{c_{i,j}\tau}{h^2}} & 0 & & \\
 0 & \ddots & \ddots & \\
   & \ddots & \ddots & \\
   &        & 0 & -{\frac{c_{i,j_{max}}\tau}{h^2}}  
 \end{bmatrix}
+\end{equation}
+\[
 \]
 
-\[D=\begin{bmatrix}
+\begin{equation}
+D=\begin{bmatrix}
 1+2({\frac{c_{i,j}\tau}{h^2}}+{\frac{c_{i,j}\tau}{h^2}}) & -{\frac{c_{i,j}\tau}{h^2}} & &  \\
 -{\frac{c_{i,j+1}\tau}{h^2}} & \ddots & \ddots & \\
 & \ddots & \ddots & -{\frac{c_{i,j_{max}-1}\tau}{h^2}}\\
  &  & -{\frac{c_{i,j_{max}}\tau}{h^2}} & 1+2({\frac{c_{i,j_{max}}\tau}{h^2}}+{\frac{c_{i,j_{max}}\tau}{h^2}})
 \end{bmatrix}
+\end{equation}
+\[
 \]
 
-\[U^{n}=\begin{bmatrix}
+\begin{equation}
+U^{n}=\begin{bmatrix}
 u^{n}_{bottom}\\
 \vdots\\
 u^{n}_{1,j_{max}}\\
@@ -218,6 +297,8 @@ u^{n}_{2,j_{max}}\\
 \vdots\\
 u^{n}_{bottom}\\
 \end{bmatrix}
+\end{equation}
+\[
 \]
 
 
@@ -228,19 +309,21 @@ As we state in the beginning, the major advantage of implicit finite difference 
 %https://en.wikipedia.org/wiki/Duhamel%27s_principle
 
 In our problem, boundary conditions are not only the temperature at borders (i.e, the north, east, south and west borders) but also heat sources inside our domain. This basically means we are trying to solve a nonhomogeneous problem instead of homogeneous one only. Our heat equation becomes
-\[
+\begin{equation}
 \begin{cases}
  {\frac{\partial u}{\partial t}}=\alpha({\frac{\partial^2 u}{\partial x^2}}+{\frac{\partial^2 u}{\partial y^2}})+{\frac{1}{c_p \rho}}q(t) \quad t>0,\\
  u(t=0)=0
 \end{cases}
-\]  
+\end{equation}
+\[\]  
 According to Duhamel's Principle, an auxiliary problem of this is   
-\[
+\begin{equation}
 \begin{cases}
  {\frac{\partial u(t;s)}{\partial t}}=\alpha({\frac{\partial^2 u(t;s)}{\partial x^2}}+{\frac{\partial^2 u(t;s)}{\partial y^2}}) \quad t>s,\\
  u(s;s)=q(s;s).\\
 \end{cases}  
-\]
+\end{equation}
+\[\]
 Duhamel's Principle implies that we can move the heat source term into initial conditions and it is possible to derive the solution of a nonhomogeneous heat equation from the solution of a homogeneous heat equation with initial values.
 
 Furthermore, our heat source term is independent of time, so Duhamel's Principle guarantees that we are allowed to absorb the heat source term into initial condition, apply normal numerical method to the problem and will get the correct solution in the end.
@@ -249,9 +332,20 @@ Furthermore, our heat source term is independent of time, so Duhamel's Principle
 
 In order to fit parameters back to a problem, we choose steepest descent method. Given a cost function $J(\theta_1,...,\theta_n)$ on a search space, we update our parameter set,$(\theta_1,...,\theta_n)$, until our cost function $J(\theta_1,...,\theta_n)$ converges into a minimal. However, it is not guaranteed that the steepest descent method will stop at the real minimal, usually it stops at local minimal then get stuck in there.
 
-In our report, we use square error function as our cost function $J(\theta_1,...,\theta_n)$, this is to say, when our hypothesis is $h_\theta(x)=\mathbf{\theta}^T \mathbf{x}$, our cost function is \[J(\theta_1,...,\theta_n)= \sum\limits_{i=1}^M (h_\theta(x_i)-y_i)^2          .\] 
-, in which $M$ is the number of our data and $y$ is the real result. The goal would be \[\argmin_{\theta_0,...,\theta_n}J(\theta_0,...,\theta_n).\]  
-First, we randomly pick $\theta_0,...,\theta_n$ as our start point, then we update each $\theta$ as following \[\theta_j := \theta_j - \alpha{\frac{\partial J(\theta_1,...,\theta_n)}{\partial \theta_j}},\] in which $\alpha$ is the learning rate. After updating all parameters, we replace our cost function $J(\theta_1,...,\theta_n)$ with the new set of $(\theta_1,...,\theta_n)$. The next iteration will start with this new cost function and we iterate it until the cost function converge to its minimum. 
+In our report, we use square error function as our cost function $J(\theta_1,...,\theta_n)$, this is to say, when our hypothesis is $h_\theta(x)=\mathbf{\theta}^T \mathbf{x}$, our cost function is
+\begin{equation}
+ J(\theta_1,...,\theta_n)= \sum\limits_{i=1}^M (h_\theta(x_i)-y_i)^2          .
+\end{equation} \[\] 
+, in which $M$ is the number of our data and $y$ is the real result. The goal would be
+\begin{equation}
+\argmin_{\theta_0,...,\theta_n}J(\theta_0,...,\theta_n).
+\end{equation}
+ \[\]  
+First, we randomly pick $\theta_0,...,\theta_n$ as our start point, then we update each $\theta$ as following
+\begin{equation}
+\theta_j := \theta_j - \alpha{\frac{\partial J(\theta_1,...,\theta_n)}{\partial \theta_j}},
+\end{equation}
+ \[\] in which $\alpha$ is the learning rate. After updating all parameters, we replace our cost function $J(\theta_1,...,\theta_n)$ with the new set of $(\theta_1,...,\theta_n)$. The next iteration will start with this new cost function and we iterate it until the cost function converge to its minimum. 
 
 
 \chapter{Approach and Implementation}
@@ -270,16 +364,25 @@ It worth recurring to this, since we mistook these two parameter at the beginnin
 For steepest descent, we need to compute the gradient. For this, we have three choice, finite difference, adjoint mode and tagent linear mode. 
 
 Finite difference:
-\[F(x,\dot{x}):=F'(x)\dot{x}\approx {\frac{F(x+h\dot{x})-F(x)}{h}}\]
+\begin{equation}
+F(x,\dot{x}):=F'(x)\dot{x}\approx {\frac{F(x+h\dot{x})-F(x)}{h}}
+\end{equation}
+\[\]
 $\text{The computational cost of }F'(x)\, \text{is at} \, O(input) \cdot cost(F)$.
 It is easy and straightforward to use finite difference method. However, when the step size become smaller and smaller, the truncation error will come in, since finite difference is an approximation method. 
 
 Tangent linear mode:
-\[F(x,\dot{x}):=F'(x)\dot{x}=\dot{y}\]
+\begin{equation}
+F(x,\dot{x}):=F'(x)\dot{x}=\dot{y}
+\end{equation}
+\[\]
 $\text{The computational cost of }F'(x)\, \text{is at} \, O(input) \cdot cost(F)$. Although we still need to evaluate function $F$ as many times as finite difference, we can get a more accurate result by using tangent linear mode.
 
 Adjoint mode:
-\[F(x,\bar{y}):=\bar{y}F'(x)=\bar{x}\]
+\begin{equation}
+F(x,\bar{y}):=\bar{y}F'(x)=\bar{x}
+\end{equation}
+\[\]
 $\text{The computational cost of }F'(x)\, \text{is at} \, O(output) \cdot cost(F)$. Different from two methods above, computing gradient with adjoint mode, the computational cost is linear to the output. For our case, it means we can get full gradient in one run. Since accuracy is not the important issue for us, we will mainly use adjoint mode to compute gradient for steepest descent method. 
      
 
