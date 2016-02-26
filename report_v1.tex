@@ -9,6 +9,8 @@
 \usepackage{float}
 \usepackage{subfigure}
 \usepackage[linesnumbered,boxed]{algorithm2e}
+\usepackage{wrapfig}
+\usepackage{array}
 \newcommand{\argmax}{\mathop{\rm arg~max}\limits}
 \newcommand{\argmin}{\mathop{\rm arg~min}\limits}
 \begin{document}
@@ -761,29 +763,108 @@ Grid Size:\\
 
 
 
-%%%%how to insert graphcis
-%blahblah
-%\begin{figure}[ht]
-%%\graphicspath{{fig/}}
+
+\newpage
+\appendix
+\chapter{ Using DCO for computing the gradient by Adjoint mode AD}
+%\section{Appendix A} 
+% the \\ insures the section title is centered below the phrase: AppendixA
+
+
+\newpage
+
+\newpage
+
+\chapter{ Using the software tool for calibrating the surface of the material}
+
+\begin{wrapfigure}{r}{0.25\textwidth} %this figure will be at the right
+    \centering
+    \includegraphics[width=0.45\textwidth]{AppenA.png}
+\end{wrapfigure}
+It is quite simple to use our tool. The parameters of simulation can be set in the python script “main.py”. Hence, one has to modify only this python script. The observed temperature should be  written in a text file named as  “obs\_Temp.txt” under the folder “data” in the following format:\\
+
+$<$ row\_Id $>$ \;     $<$column\_Id$>$  \;   $<$temperature$>$\\
+
+This file should contain the temperature at all grid points including boundary. Hence, for a grid size of 10x10, there should be (10+2)x(10+2) values.
+
+For efficient estimation at each point, the final observed temperature should be well above the initial temperature at every point in the grid. \\
+
+\textit{The followint parameters can be modified:}
+
 %\begin{center}
-%\includegraphics[width=0.8\textwidth]{wallpaper_2.png} 
-%\caption{blahblah} \vskip 10 pt
-%\label{fig:horse}
+%\begin{tabular}{ | c {1cm}|c {5cm}|c {2cm}| } 
+% \hline
+% \textbf{Parameter} & \textbf{description} & \textbf{Unit}\\ 
+% \hline
+% N & Grid size in each dimension. For eg, if N = 30, 32x32 grid will be initialized including the boundary rows and columns. (Please make sure that this dimension matches with the number of values in “obs\_Tmp.txt”) & -\\ 
+% \hline
+% $3*3$   & cell9 & clcl\\ 
+% \hline
+%\end{tabular}
 %\end{center}
-%\end{figure}
-%blahblah Fig.~\ref{fig:horse} blahblah
-%%http://goo.gl/2oClXr
-%%%%end
 
 
 
+\begin{tabular}{ | m{10em} | m{7cm}| m{1cm} | } 
+\hline
+\textbf{Parameter} & \textbf{Description} & \textbf{Unit}\\ 
+\hline
+N& Grid size in each dimension. For eg, if N = 30, 32x32 grid will be initialized including the boundary rows and columns. (Please make sure that this dimension matches with the number of values in “obs\_Tmp.txt”) & - \\ 
+\hline
+CN & Conductivity grid size. This can take maximum value of (N+2) for resolution same as the temperature grid. It can take any value less than this, but greater than 0. & - \\ 
+\hline
+DIMENSION & Dimension of the side of the plate & m \\ 
+\hline
+TIME & Simulation time & s\\
+\hline
+RHO & Density of the material of the plate & Kg$m^{-3}$\\
+\hline
+CP & Specific heat capacity & J$K^{-1}$\\
+\hline
+NORTH & Temperature at the north boundary & K\\
+\hline
+SOUTH & Temperature at the south boundary & K\\
+\hline
+EAST & Temperature at the east boundary & K\\
+\hline
+WEST & Temperature at the west boundary & K\\
+\hline
+INITIAL & Initial Temperature & K\\
+\hline
+C0 & Tabulated value of conductivity of the material mentioned in literature & W/(m. K)\\
+\hline
+SCHEME & Implicit (i) / Explicit(e) / RK4 (r) & -\\
+\hline
+GRADIENT & Compute by Finite difference (d) / Adjoint mode AD (a) & -\\
+\hline
+Q[] & Heat source temperature & K\\
+\hline
+USE\_SIMULATED\_T & If Observed temperature is not available, temperature from the simulation appended by some noise can be used for estimation & -\\
+\hline
+\end{tabular}
+\newpage
+
+\textbf{Running the python script:}\\
+
+python main.py\\
+
+
+This will write the required data files and compile the source codes. Two executables will be generated: simulate and estimate. 
+
+In case the observed temperature is not available, one should execute 'simulate' and then execute 'estimate'. Alternatively, executing the python script as \\
+
+python main.py  -\,-test\\
+
+will generate a bash script “run.sh” with the required executable statements.\\
+
+The estimated conductivities will be found under data/estimate\_conductivity.txt and the corresponding final temperature under data/estimate\_Temp.txt
+
+To use the tool just for simulation, use the argument “--simulate” while executing the python script.\\
+
+python main.py -simulate
 
 
 
-%@I. the problem
-%@II. the approach
-%III. the realization 
-%IV.the results including a discussion.
 
 
 
