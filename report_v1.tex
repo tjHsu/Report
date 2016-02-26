@@ -790,97 +790,105 @@ To differentiate dy/dC with dco, we write the following driver, which returns th
 AMPI\_Sendrecv(\&sendBuf[0], myCol, MPI\_DOUBLE, p\_rank, 0, \&recvBuf[0],myCol,MPI\_DOUBLE,n\_rank,0, m\_cartComm, \&status);
 \end{flushleft}
 \end{snugshade}
-The self contained code for the driver:  \\
+The self contained code for the driver is on the next page.  \\
 \\
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{snugshade}
-void mpiESTIMATOR::driver\_a1s(double* C,  double *U\_old, double *U\_new, double \&y, double* g) 
-\{ 
-
-    typedef dco::ga1s$<$double$>$ DCO\_M; 
-    typedef typename DCO\_M::type DCO\_T; 
-    typedef typename DCO\_M::tape\_t DCO\_TT; 
-
-/*********************************************************
-* STEP 1: Change the data type to DCO type for the variables required to carry the dependency.
-*
-*  We create variables of dco type and allocate memory and later copy the arrays passed to the driver to these dco type variables.
-*
-*********************************************************
-
-    DCO\_T* ca = new DCO\_T[m\_cSize*m\_cSize]; 
-    DCO\_T ya; 
-    DCO\_T* Ua\_old = new DCO\_T[myRow*myCol]; 
-    DCO\_T* Ua\_new = new DCO\_T[myRow*myCol]; 
-
-    for (size\_t i=0;i$<$myRow*myCol;i++) 
-    \{ 
-        (Ua\_old[i]) = U\_old[i]; 
-        (Ua\_new[i]) = U\_new[i]; 
-    \} 
-
-/***********************************************************
-* STEP 2: We create a tape, that records the graph while forward run of simulation
-*************************************************************
-
-    DCO\_M::global\_tape=DCO\_TT::create(); 
-    DCO\_M::global\_tape-$>$reset(); 
-
-/***********************************************************
-* STEP 3: We register the input parameter to the tape
-*************************************************************
-
-    for (size\_t i=0;i$<$m\_cSize;i++) 
-        for (size\_t j=0;j$<$m\_cSize;j++) 
-        \{ 
-           ca[i*m\_cSize + j]=C[i*m\_cSize + j]; 
-           DCO\_M::global\_tape-$>$register\_variable(ca[i*m\_cSize + j]); 
-        \} 
-
-/***********************************************************
-* STEP 4: Call the function to be differentiated with the DCO type variables to start recording
-*************************************************************
-    f(ca,Ua\_old,Ua\_new,ya); 
-
-/***********************************************************
-* STEP 5: Register the output variable and interpret the adjoint. The adjoint of the output should be set to 1 by rank 0 processor.
-* This runs the simulation in reverse mode. The reverse communication is taken care by AMPI
-************************************************************
-
-    DCO\_M::global\_tape-$>$register\_output\_variable(ya); 
-    y=dco::value(ya); 
-
-    if(my\_rank==0) 
-        dco::derivative(ya)=1; 
-
-
-    DCO\_M::global\_tape-$>$interpret\_adjoint(); 
-
-/*****************************************************************************
-* STEP 6: The local gradient is obtained and the tape is cleared
-******************************************************************************
-
-    for (size\_t i=0;i$<$m\_cSize;i++) 
-        for (size\_t j=0;j$<$m\_cSize;j++) 
-                g[i*m\_cSize + j]=dco::derivative(ca[i*m\_cSize + j]); 
-
-
-    DCO\_TT::remove(DCO\_M::global\_tape); 
-    MPI\_Barrier; 
-
-   for(int i=0; i$<$ m\_cSize*m\_cSize; i++) 
-        MPI\_Allreduce(\&g[i], \&g[i], 1, MPI\_DOUBLE, MPI\_SUM,m\_cartComm); 
-
-
-    delete[] ca; delete[] Ua\_new; delete[] Ua\_old; 
-\}
-
-\end{snugshade}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[h]
+%\graphicspath{{fig/}}
+\begin{center}
+\includegraphics[width=0.9\textwidth]{DCO.png} 
+%\caption{} \vskip 10 pt
+\label{fig:DCO}
+\end{center}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\begin{snugshade}
+%void mpiESTIMATOR::driver\_a1s(double* C,  double *U\_old, double *U\_new, double \&y, double* g) 
+%\{ 
+%
+%    typedef dco::ga1s$<$double$>$ DCO\_M; 
+%    typedef typename DCO\_M::type DCO\_T; 
+%    typedef typename DCO\_M::tape\_t DCO\_TT; 
+%
+%/*********************************************************
+%* STEP 1: Change the data type to DCO type for the variables required to carry the dependency.
+%*
+%*  We create variables of dco type and allocate memory and later copy the arrays passed to the driver to these dco type variables.
+%*
+%*********************************************************
+%
+%    DCO\_T* ca = new DCO\_T[m\_cSize*m\_cSize]; 
+%    DCO\_T ya; 
+%    DCO\_T* Ua\_old = new DCO\_T[myRow*myCol]; 
+%    DCO\_T* Ua\_new = new DCO\_T[myRow*myCol]; 
+%
+%    for (size\_t i=0;i$<$myRow*myCol;i++) 
+%    \{ 
+%        (Ua\_old[i]) = U\_old[i]; 
+%        (Ua\_new[i]) = U\_new[i]; 
+%    \} 
+%
+%/***********************************************************
+%* STEP 2: We create a tape, that records the graph while forward run of simulation
+%*************************************************************
+%
+%    DCO\_M::global\_tape=DCO\_TT::create(); 
+%    DCO\_M::global\_tape-$>$reset(); 
+%
+%/***********************************************************
+%* STEP 3: We register the input parameter to the tape
+%*************************************************************
+%
+%    for (size\_t i=0;i$<$m\_cSize;i++) 
+%        for (size\_t j=0;j$<$m\_cSize;j++) 
+%        \{ 
+%           ca[i*m\_cSize + j]=C[i*m\_cSize + j]; 
+%           DCO\_M::global\_tape-$>$register\_variable(ca[i*m\_cSize + j]); 
+%        \} 
+%
+%/***********************************************************
+%* STEP 4: Call the function to be differentiated with the DCO type variables to start recording
+%*************************************************************
+%    f(ca,Ua\_old,Ua\_new,ya); 
+%
+%/***********************************************************
+%* STEP 5: Register the output variable and interpret the adjoint. The adjoint of the output should be set to 1 by rank 0 processor.
+%* This runs the simulation in reverse mode. The reverse communication is taken care by AMPI
+%************************************************************
+%
+%    DCO\_M::global\_tape-$>$register\_output\_variable(ya); 
+%    y=dco::value(ya); 
+%
+%    if(my\_rank==0) 
+%        dco::derivative(ya)=1; 
+%
+%
+%    DCO\_M::global\_tape-$>$interpret\_adjoint(); 
+%
+%/*****************************************************************************
+%* STEP 6: The local gradient is obtained and the tape is cleared
+%******************************************************************************
+%
+%    for (size\_t i=0;i$<$m\_cSize;i++) 
+%        for (size\_t j=0;j$<$m\_cSize;j++) 
+%                g[i*m\_cSize + j]=dco::derivative(ca[i*m\_cSize + j]); 
+%
+%
+%    DCO\_TT::remove(DCO\_M::global\_tape); 
+%    MPI\_Barrier; 
+%
+%   for(int i=0; i$<$ m\_cSize*m\_cSize; i++) 
+%        MPI\_Allreduce(\&g[i], \&g[i], 1, MPI\_DOUBLE, MPI\_SUM,m\_cartComm); 
+%
+%
+%    delete[] ca; delete[] Ua\_new; delete[] Ua\_old; 
+%\}
+%
+%\end{snugshade}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
 
 \newpage
