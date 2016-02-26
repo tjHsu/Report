@@ -537,9 +537,11 @@ Furthermore, our heat source term is independent of time, so Duhamel's Principle
 A stable solver which simulates the non-linear heat conduction is required for estimating the heat conductivities, and this was discussed in detail in the last chapter. Now, the conductivities should be optimized to a set of observed temperature distribution. In this chapter, parameter estimation by  gradient descent method will be discussed. 
 \section{Steepest Descent Method}
 
-In order to fit parameters back to a problem, we choose steepest descent method. Given a cost function $F(c_1,...,c_n)$ on a search space $c_1,...,c_n \in R$, we update our parameter set,$(c_1,...,c_n)$, until our cost function $F(c_1,...,c_n)$ converges into a minimal. However, it is not guaranteed that the steepest descent method will stop at the real minimal, usually it stops at local minimal then get stuck in there.
+Given a cost function $F(c_1,...,c_n)$ on a search space $c_1,...,c_n \in R$, we update our parameter set,$(c_1,...,c_n)$, until our cost function $F(c_1,...,c_n)$ converges into a minimal. 
 
-In our report, we use square error function as our cost function $F(c_1,...,c_n)$, this is to say, our cost function is
+%However, it is not guaranteed that the steepest descent method will stop at the real minimal, usually it stops at local minimal then get stuck in there.
+
+In our project, we try to minimize the following square error function function:
 %when our hypothesis is $h_c(x)=\mathbf{c}^T \mathbf{x}$,
 \begin{equation}
  F(c_1,...,c_n)= \sum\limits_{i=1}^N (U_i-O_i)^2          .
@@ -549,11 +551,11 @@ $U_i$: Final temperature computed by the solver at $i^{th}$ grid point.\\
 $O_i$: Observed temperature at $i^{th}$ grid point.\\
 $N$: $n*n$, where n is the grid size in each dimension.\\
 
-In our project, we try to minimize the following square error function, so the goal would be
-\begin{equation*}
-\argmin_{c_0,...,c_n}F(c_0,...,c_n).
-\end{equation*} 
-To fulfil this, we use the tabulated values of conductivities as our initial guess,$^{[3]}$ and perform the following update and re-compute the cost function until convergence,
+%In our project, we try to minimize the following square error function, so the goal would be
+%\begin{equation*}
+%\argmin_{c_0,...,c_n}F(c_0,...,c_n).
+%\end{equation*} 
+We use the tabulated values of conductivities as our initial guess,$^{[3]}$ and perform the following update and re-compute the cost function until convergence,
 %first, we randomly pick $c_0,...,c_n$ as our start point, then we update each $c$ as following
 \begin{equation}
 c_j := c_j - \alpha{\frac{\partial F(c_1,...,c_n)}{\partial c_j}},
@@ -561,9 +563,25 @@ c_j := c_j - \alpha{\frac{\partial F(c_1,...,c_n)}{\partial c_j}},
 where,\\
  $\alpha$ is the learning rate. \\
  
-After updating all parameters, we replace our cost function $F(c_1,...,c_n)$ with the new set of $(c_1,...,c_n)$. The next iteration will start with this new cost function and we iterate it until the cost function converge to its minimum. 
+%After updating all parameters, we replace our cost function $F(c_1,...,c_n)$ with the new set of $(c_1,...,c_n)$. The next iteration will start with this new cost function and we iterate it until the cost function converge to its minimum. 
 
-The algorithm for this is as follow:
+%The algorithm for this is as follow:
+
+\subsection{Finding the Learning Rate}
+
+Line search is performed to find an appropriate learning rate. The learning rate (alpha) is divided by 2, until we find an update (3.2) which reduces the cost function. Even though the monotonous reduction is ensured, the number of free parameter updates that will be required is unclear. If the current alpha is 0.1 and the alpha required for reduction is 0.0001, then at least 500 updates of free parameter would be required. This means, we have to run the simulation 500 times. 
+
+To save so many simulation runs, we can try to solve the following constrained optimization problem, 
+\begin{equation}
+\min z= y_{k+1}(\alpha_j)-y_k(\alpha_j)   \text{ such that } y_k+1(\alpha_j)<y_k(\alpha_j)
+\end{equation}
+where,\\
+$y_{k+1}$: Least square estimate in the iteration $k+1$ of steepest descent\\
+$y_{k}$: Least square estimate in the iteration $k$ of steepest descent\\
+$\alpha_j$: $j^{th}$ update of $\alpha$ in $k^{th}$ iteration of steepest descent.
+
+Since the above optimization problem can require the computation of Hessian,  we are not clear at this point, if the complexity of this optimization would be a better trade off. So we resort to the following adaptive update of free parameter in our project as shown in the algorithm,
+
 \begin{algorithm}[t]
 \caption{Steepest Descent ($C_0$)}
   \KwIn{Initial Guess $c_0 \in R^n$}
@@ -586,21 +604,7 @@ The algorithm for this is as follow:
   }
 \end{algorithm}
 %\vspace{\fill}
-\pagebreak
-\subsection{Finding the Learning Rate}
-
-Line search is performed to find an appropriate learning rate. The learning rate (alpha) is divided by 2, until we find an update (3.2) which reduces the cost function. Even though the monotonous reduction is ensured, the number of free parameter updates that will be required is unclear. If the current alpha is 0.1 and the alpha required for reduction is 0.0001, then at least 500 updates of free parameter would be required. This means, we have to run the simulation 500 times. 
-
-To save so many simulation runs, we can try to solve the following constrained optimization problem, 
-\begin{equation}
-\argmin z= y_{k+1}(\alpha_j)-y_k(\alpha_j)   \text{ such that } y_k+1(\alpha_j)<y_k(\alpha_j)
-\end{equation}
-where,\\
-$y_{k+1}$: Least square estimate in the iteration $k+1$ of steepest descent\\
-$y_{k}$: Least square estimate in the iteration $k$ of steepest descent\\
-$\alpha_j$: $j^{th}$ update of $\alpha$ in $k^{th}$ iteration of steepest descent.
-
-Since the above optimization problem can require the computation of Hessian,  we are not clear at this point, if the complexity of this optimization would be a better trade off. So we resort to the following adaptive update of free parameter in our project as shown in the algorithm,
+%\pagebreak
 
 \begin{algorithm}[h]
 \caption{\textbf{ADAPTIVE\_LINE\_SEARCH(line\_search\_count)}}
@@ -631,28 +635,28 @@ Gradient computation is the biggest bottleneck in gradient based optimization te
 g=\frac{\partial F(c)}{c}
 \end{equation}       
 %For steepest descent, we need to compute the gradient. For this, we have three choice, finite difference, adjoint mode and tagent linear mode. 
-
-Finite difference:
-\begin{equation}
-F(x,\dot{x}):=F'(x)\dot{x}\approx {\frac{F(x+h\dot{x})-F(x)}{h}}
-\end{equation}
-\[\]
-$\text{The computational cost of }F'(x)\, \text{is at} \, O(input) \cdot cost(F)$.
-It is easy and straightforward to use finite difference method. However, when the step size become smaller and smaller, the truncation error will come in, since finite difference is an approximation method. 
-
-Tangent linear mode:
-\begin{equation}
-F(x,\dot{x}):=F'(x)\dot{x}=\dot{y}
-\end{equation}
-\[\]
-$\text{The computational cost of }F'(x)\, \text{is at} \, O(input) \cdot cost(F)$. Although we still need to evaluate function $F$ as many times as finite difference, we can get a more accurate result by using tangent linear mode.
-
-Adjoint mode:
-\begin{equation}
-F(x,\bar{y}):=\bar{y}F'(x)=\bar{x}
-\end{equation}
-\[\]
-$\text{The computational cost of }F'(x)\, \text{is at} \, O(output) \cdot cost(F)$. Different from two methods above, computing gradient with adjoint mode, the computational cost is linear to the output. For our case, it means we can get full gradient in one run. Since accuracy is not the important issue for us, we will mainly use adjoint mode to compute gradient for steepest descent method. 
+%
+%Finite difference:
+%\begin{equation}
+%F(x,\dot{x}):=F'(x)\dot{x}\approx {\frac{F(x+h\dot{x})-F(x)}{h}}
+%\end{equation}
+%\[\]
+%$\text{The computational cost of }F'(x)\, \text{is at} \, O(input) \cdot cost(F)$.
+%It is easy and straightforward to use finite difference method. However, when the step size become smaller and smaller, the truncation error will come in, since finite difference is an approximation method. 
+%
+%Tangent linear mode:
+%\begin{equation}
+%F(x,\dot{x}):=F'(x)\dot{x}=\dot{y}
+%\end{equation}
+%\[\]
+%$\text{The computational cost of }F'(x)\, \text{is at} \, O(input) \cdot cost(F)$. Although we still need to evaluate function $F$ as many times as finite difference, we can get a more accurate result by using tangent linear mode.
+%
+%Adjoint mode:
+%\begin{equation}
+%F(x,\bar{y}):=\bar{y}F'(x)=\bar{x}
+%\end{equation}
+%\[\]
+%$\text{The computational cost of }F'(x)\, \text{is at} \, O(output) \cdot cost(F)$. Different from two methods above, computing gradient with adjoint mode, the computational cost is linear to the output. For our case, it means we can get full gradient in one run. Since accuracy is not the important issue for us, we will mainly use adjoint mode to compute gradient for steepest descent method. 
      
 \subsection{Gradient computation using finite difference}
 
@@ -672,26 +676,68 @@ $F:R^{N} \mapsto R$,
 Hence for a single gradient evaluation, each of the parameter should be perturbed and the least square estimate should be computed. This means the simulation should be run $N$ times for a evaluating one gradient ($N = n*n$, where $n$ is the grid size in each dimension) 
 
 
-\subsection{Gradient compuataion using algorithmic differentiation}
+\subsection{Gradient compuataion using Adjoint mode AD}
 
-\begin{figure}[H]
-\begin{minipage}[t]{0.5\linewidth}
-\centering
-\includegraphics[width=2.2in]{AD_l.png}
-\caption{}
-\label{fig:side:a}
-\end{minipage}%
-\begin{minipage}[t]{0.5\linewidth}
-\centering
-\includegraphics[width=2.2in]{AD_r.png}
-\caption{}
-\label{fig:side:b}
-\end{minipage}
-\end{figure}
+%\begin{figure}[H]
+%\begin{minipage}[t]{0.5\linewidth}
+%\centering
+%\includegraphics[width=2.2in]{AD_l.png}
+%\caption{}
+%\label{fig:side:a}
+%\end{minipage}%
+%\begin{minipage}[t]{0.5\linewidth}
+%\centering
+%\includegraphics[width=2.2in]{AD_r.png}
+%\caption{}
+%\label{fig:side:b}
+%\end{minipage}
+%\end{figure}
+
+\begin{wrapfigure}{r}{0.25\textwidth} %this figure will be at the right
+    \centering
+    \includegraphics[width=0.25\textwidth]{AD_l.png}
+    \caption{}
+    \label{AD_l}
+\end{wrapfigure}
+To compute the gradient by algorithmic differentiation, \\
+\\
+1) Break down the cost function y = F(c), into sequence of elemental functions. This results in building a directed acyclic graph as shown in Fig.\ref{AD_l} ( This complete graph is not shown, as the structure would complex. But one has to understand that there is a path from each of the input parameter to the output variable)\\
+\\
+2) Differentiate the elemental functions analytically with respect to its input arguments. This results in a Linearized DAG, with the differentials placed in the edges.\\
+\\
+3) The derivative of F(c) with respect to ci is obtained by vertex elimination.\\
+\\
+\begin{equation}
+\bigtriangledown F(c) \equiv \frac{\partial y}{\partial c}= \sum_{path \in \text{IDAG}} \; \prod_{(i,j)\in \text{path}} d_{j,i}  
+\end{equation}
+
+\begin{wrapfigure}{r}{0.25\textwidth} %this figure will be at the right
+    \centering
+    \includegraphics[width=0.25\textwidth]{AD_r.png}
+    \caption{}
+    \label{AD_r}
+\end{wrapfigure}
+
+To compute by adjoint mode, we augment this DAG at the output and define\\
+\\
+y$_{(a1)}$ = (dt/dy)T = 1\\
+
+By chain rule of differentiation,\\
+\\
+dt/dc = (dt/dy)*(dF/dc)\\
+\\
+dt/dc = ($y_{a1}$)$^{T} \bigtriangledown $ C = ($\bigtriangledown$ C)$^{T*}$ y$_{a1}$\\ 
+
+Since y$_{a1}$ is a unit scalar,\\
+\\
+c$_{a1}$  = ($\bigtriangledown$C)$^T$\\
+\\
+Thus we compute the adjoints of the inputs and recover the gradient in  a single run of simulation.
 
 
 \subsection{Comparison of gradient computation time by FD and Adjoint AD}
-\begin{figure}[h]
+The following graph shows the comparison of computation time of gradient by Finite difference and Adjoint AD. Since we augment the output in the adjoint mode, the computation time of gradient is independent of the input parameter size.\\
+\begin{figure}[H]
 %\graphicspath{{fig/}}
 \begin{center}
 \includegraphics[width=0.6\textwidth]{GraDiff.png} 
@@ -700,16 +746,16 @@ Hence for a single gradient evaluation, each of the parameter should be perturbe
 \end{center}
 \end{figure}
 
-
+Adjoint AD requires storing the entire graph of simulation. Hence for larger grid size or smaller time steps, this method will break because of memory constraints. Alternatively, one could determine the check points and do call tree reversal$^{[5]}$ to sequentially store parts of the graphs and compute gradient at some extra computational cost. However, this is not done in our project.
 
 \section{Convergence of Steepest Descent}
 
 The considered cost function becomes less sensitive to the parameters as we increase the number of conductivity points to be estimated along a given surface. For example, one cannot expect much change in the least square estimate of temperature difference by changing the conductivity by a small value at just one point in a $10*10$ set. Thus we see this gap between the convergence of Final temperature distribution and convergence of conductivities. Hence, when the solution approaches close to the expected temperature, the gradient values become close to zero, and thereby updating the conductivities in equation (3.2)  by small values at each step of gradient descent.
-\begin{figure}[h]
+\begin{figure}[H]
 %\graphicspath{{fig/}}
 \begin{center}
 \includegraphics[width=0.6\textwidth]{Conv.png} 
-\caption{} \vskip 10 pt
+\caption{} %\vskip 10 pt
 \label{fig:Conv}
 \end{center}
 \end{figure}
@@ -760,11 +806,17 @@ Grid Size:\\
 \end{tabular}
 \end{center}
 
-\chapter{Conclusion}
+\chapter{Conclusion and Suggested Improvement}
 %\section{Speed up with MPI}
 %\section{Gradient Evaluation with Different Methods}
 
+We presented the software tool for calibrating the surface of a homogeneous material with the heat conductivity variations.
 
+To obtain the correct results, the final temperature at each of the measuring grid point should be well above the initial temperature. Otherwise, the differential at that point will be zero, and the conductivity will not be updated. But for quick simulation, we need to keep the simulation time as less as possible. Therefore, the plate should be heated at high temperature for time as short as possible. Usually for smaller grid sizes, the stability constraints by explicit schemes are pretty relaxed. But when the simulation time is longer, we may have to resort to implicit scheme at the cost of reduced accuracy of final temperature.  
+
+Although the cost function used for estimating the parameters is quite simple because of scalar output, it's sensitivity to the localized conductivities is not sufficient to quickly determine the parameters at all the grid points, thereby resulting in poor convergence. Hence for larger grid sizes, the number of iterations to converge will increase. Alternatively, one could map each blocks of gird separately to the corresponding blocks in observed temperature and try to optimize the multi-objective problem. Otherwise, one could also try to optimize the non-linear least square problem using Gauss-Newton method. But this will require the computation of Jacobian. Since the number of outputs would be same or more than the number of input parameters, Tangent Linear mode AD will be more efficient to compute the Jacobian in this case.
+
+To push the memory constraints of Adjoint AD, the check points of memory break down should be determined and the graphs can be stored in batches  by call tree reversal techniques$^{[5]}$.
 
 
 \newpage
