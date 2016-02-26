@@ -8,7 +8,8 @@
 \usepackage{graphicx}
 \usepackage{float}
 \usepackage{subfigure}
-\usepackage[linesnumbered,boxed]{algorithm2e}
+%\usepackage[linesnumbered,boxed]{algorithm2e}
+\usepackage[ruled,vlined]{algorithm2e}
 \usepackage{wrapfig}
 \usepackage{array}
 \usepackage{color}
@@ -154,8 +155,8 @@ If c depends on the spatial dimensions, the 2D heat equation becomes
 But, 
 \begin{equation}
 \bigtriangledown^2(cu)=c_x \bigtriangledown^2(u)+\bigtriangledown(c) \bigtriangledown(u)+u_x \bigtriangledown^2(c)
-\end{equation}
-
+\end{equation}\\
+\\
 If $\Delta c$ is small, the variations, $\Delta k\approx 0$, since $\rho C_p \gg k$. Thus, $\Delta c$ has negligible effect on the heat equation.
 
 Hence,
@@ -266,13 +267,13 @@ In explicit finite difference scheme, the temperature evolutes explicitly on the
 \begin{equation}
 {\frac{u^{n+1}_{i,j}-u^n_{i,j}}{\tau}}=k_{i,j}({\frac{u^n_{i,j+1}-2u^n_{i,j}+u^n_{i,j-1}}{h^2}}+{\frac{u^n_{i+1,j}-2u^n_{i,j}+u^n_{i-1,j}}{h^2}}).
 \end{equation}
-\[\]
+%\[\]
 %Consider adding the grid explanation for i j n.
 This can be rearranged as following:
 \begin{equation}
 u^{n+1}_{i,j}=u^{n}_{i,j}+k_{i,j}{\frac{\tau}{h^2}}(u^n_{i,j+1}+u^n_{i+1,j}-4u^n_{i,j}+u^n_{i,j-1}+u^n_{i-1,j}).
 \end{equation}
-\[\]
+%\[\]
 
 We now get a relation between space and time derivatives at each $(x,t)\in \Omega$ with a discrete approximation. As long as we know $u^n_{i\pm 1,j}$,$u^n_{i,j}$, and $u^n_{i,j\pm 1}$, we can compute $u^{n+1}_{i,j}$ for the following time step. The scheme is completely defined when we apply initial conditions and boundary conditions on it.
 
@@ -282,12 +283,13 @@ To derive Runge-Kutta, once again we start from Taylor series approximation,
 \begin{equation}
 u(t+\tau)=u(t)+\tau u'(t)+{\frac{\tau^2}{2}}u''(t)+\mathcal{O}(\tau^3).
 \end{equation}
-\[\]
+%\[\]
 Then we set first derivative as $u'(t)=f(t,u(t))$. From this we can get our second derivative by differentiating it, which is
 \begin{equation}
 u''(t)=f_t(t,u)+f_u(t,u)u'(t)=f_t(t,u)+f_u(t,u)f(t,u).
 \end{equation}
- \[\] We substitute these into our Taylor series approximation and rewrite as following,
+ %\[\] 
+ We substitute these into our Taylor series approximation and rewrite as following,
 \begin{align} %without star align will index equation.
 u(t+\tau)
 =u(t)+\tau f(t,u)+{\frac{\tau^2}{2}}[f_t(t,u)+f_u(t,u)f(t,u)]+\mathcal{O}(\tau^3)\\
@@ -297,11 +299,13 @@ With multivariate Taylor series approximation, we know $f(t+\tau,u+\tau f(t,u))=
 \begin{equation}
 u(t+\tau)=u(t)+{\frac{\tau}{2}}f(t,u)+{\frac{\tau}{2}}f(t+\tau,u+\tau f(t,u))+\mathcal{O}(\tau^3)
 \end{equation}
- \[\] and in simple numerical form
+ %\[\] 
+ and in simple numerical form
 \begin{equation}
  u^n+1=u^n+\tau ({\frac{1}{2}}k_1+{\frac{1}{2}}k_2),
  \end{equation} 
-\[\]with 
+%\[\]
+with 
 \begin{align}
 k_1=f(t_n,u^n),\\
 k_2 = f(t_n+\tau, u^n+\tau k_1).
@@ -310,7 +314,7 @@ This is so called second-order Runge-Kutta method. However, to gain higher accur
 \begin{equation}
 u^{n+1}=u^n+h[{\frac{k_1}{6}}+{\frac{k_2}{3}}+{\frac{k_3}{3}}+{\frac{k_4}{6}}]
 \end{equation}
-\[\]
+%\[\]
 with
 
 \begin{align*}
@@ -325,7 +329,8 @@ The main benefit of explicit finite difference method is its easiness of impleme
 \begin{equation}
 {\frac{k_{i,j}\tau}{h^2}}\leq {\frac{1}{4}}.
 \end{equation}
-\[\] Otherwise, the solution would become unstable and meaningless.\\
+%\[\] 
+Otherwise, the solution would become unstable and meaningless.\\
 
 
 \subsection{Fully Implicit Scheme}
@@ -334,12 +339,12 @@ To avoid unstable solution, we can use implicit finite difference schemes. We re
 \begin{equation}
 {\frac{u^{n+1}_{i,j}-u^n_{i,j}}{\tau}}=k_{i,j}({\frac{u^{n+1}_{i,j+1}-2u^{n+1}_{i,j}+u^{n+1}_{i,j-1}}{h^2}}+{\frac{u^{n+1}_{i+1,j}-2u^{n+1}_{i,j}+u^{n+1}_{i-1,j}}{h^2}}).
 \end{equation}
- \[\]
+ %\[\]
 Once again this can be rearranged into
 \begin{equation}
 u^{n+1}_{i,j}+k_{i,j}{\frac{\tau}{h^2}}(-u^n_{i,j+1}+-u^n_{i+1,j}+4u^n_{i,j}-u^n_{i,j-1}-u^n_{i-1,j})=u^{n}_{i,j}.
 \end{equation}
-\[\]
+%\[\]
 In this scheme, even all $u^n_{i,j}$ are known, we cannot directly compute $u^{n+1}_{i,j} $. We need to solve a linear system at each time step, since all unknown variable $u^{n+1}_{i,j}$ are coupled with each other. We can write our linear system as follow \[\] 
 \begin{equation}
 AU^{n+1}=U^{n}
@@ -418,8 +423,9 @@ As we state in the beginning, the major advantage of implicit finite difference 
 
 \subsection{Domain Decomposition}
 
-In order to improve the efficiency of the code running in the parallelly, we can divide the domain in to different types and assign the division to each of the processor to work on that part of the code or domain. However, the decomposition of domain is of purely personal choice and depends on the user, who programs it. Here we have used 1D domain desomposition, such that the entire domain is split in to rows depending on the number of processors, and the processors act on that part of the domain assigned to them. Below the figure represents the decomposition of the domain.
-\pagebreak
+%In order to improve the efficiency of the code running in the parallelly, we can divide the domain in to different types and assign the division to each of the processor to work on that part of the code or domain. However, the decomposition of domain is of purely personal choice and depends on the user, who programs it. Here we have used 1D domain desomposition, such that the entire domain is split in to rows depending on the number of processors, and the processors act on that part of the domain assigned to them. Below the figure represents the decomposition of the domain.
+Since the temperature at each grid point depends only on its neighboring points for both implicit and Rk4 schemes, we can decompose the domain to split the work . The grid is split among the processors as shown in the Fig.\ref{fig:domain}. Each processor has a ghost row at the top and bottom which holds the grid points of neighboring ranks. // 
+
 \begin{figure}[h]
 %\graphicspath{{fig/}}
 \begin{center}
@@ -430,18 +436,20 @@ In order to improve the efficiency of the code running in the parallelly, we can
 \end{figure}
 
 
-The pseudo code for the domain decomposition is such that
+%The pseudo code for the domain decomposition is such that
+The communication of ghost rows for implicit and RK4 schemes can be found in their respective algorithms
+
 \begin{algorithm}[h]
-\caption{Runge-Kutta Scheme with Domain Decomposition}
-  \KwIn{}
-  \KwOut{}
+\caption{RK4(U\_current, U\_next)}
+  \KwIn{Initialized grids}
+  \KwOut{Update U\_current to final temperature}
   
   \While{$t<\text{TIME}$}
   {
 
-	Loop i: 0:my\_end\;	
-    \Indp Loop j: 0:my\_end\;
-      	\Indp $u_{k+1}$=Runge-Kutta Update($u_{k}$)\;
+	loop i: 0:my\_end\;	
+    \Indp loop j: 0:my\_end\;
+      	\Indp U\_next = RK4\_update(U\_current)\\
     \bigskip 
     \Indm \Indm send the top row to the previous rank\\
 	receive the last ghost row from the next rank\\
@@ -449,6 +457,7 @@ The pseudo code for the domain decomposition is such that
 	send the bottom row to the next rank\\
 	receive the top ghost row from the previous rank\\   
 	\bigskip
+	U\_current = U\_next
     t=t+dt
   }
 
@@ -460,41 +469,33 @@ According to the same manner, we can also use it on fully implicit method with J
 The algorithm for the implicit scheme iteration is as follow:
 
 \begin{algorithm}[h]
-  \caption{Implicit Scheme Jacobi Iteration}
-  \KwIn{}
-  \KwOut{}
+  \caption{IMPLICIT(u\_current,u\_next)}
+  \KwIn{Initialized grids}
+  \KwOut{Update U\_current to final temperature}
   
   \While{$t<\text{TIME}$}
   {
-    
+    Reset u\_k to 0
     \While{$residual<epsilon$}
     {
-	Loop i: 1:my\_end\;	
-    \Indp Loop j: 1:my\_end\;
+	loop i: 1:my\_end\;	
+    \Indp loop j: 1:my\_end\;
       	\Indp $u_{k+1}$=Jacobi-Iteration($u_{k}$)\;
-    \Indm \Indm residual=$\parallel x_{k+1}-x_{k} \parallel$  
+      	    \bigskip 
+    \Indm \Indm send the top row to the previous rank\\
+	receive the last ghost row from the next rank\\
+	\bigskip 		
+	send the bottom row to the next rank\\
+	receive the top ghost row from the previous rank\\   
+	\bigskip
+    residual=$\parallel x_{k+1}-x_{k} \parallel$  \\
+    Sum the local residual from all the processors
     }
+    u\_current=u\_next\\
     t=t+dt
   }
 \end{algorithm}
 \pagebreak
-
-The above code is compared with the ANSYS Mechanical APDL, and values at the nodes are compared with the RK4 scheme results and the norm of the error is found to be at 1.76 e-7 which is well with in the comparable results. Hence, the RK4 scheme code for 2D heat equation produces similar result to the commercial software, which can validated with. The problem setting was such that the heat/temperature is applied at the top surface of the plate and all other surfaces are insulated. Below is the plot from ANSYS.\\
-
-\begin{figure}
-\begin{minipage}[t]{0.5\linewidth}
-\centering
-\includegraphics[width=3.4in]{Validation.jpg}
-\caption{}
-\label{fig:side:a}
-\end{minipage}%
-\begin{minipage}[t]{0.5\linewidth}
-\centering
-\includegraphics[width=2.2in]{Validation3.png}
-\caption{}
-\label{fig:side:b}
-\end{minipage}
-\end{figure}
 
 
 
@@ -513,7 +514,7 @@ In our problem, boundary conditions are not only the temperature at borders (i.e
  u(t=0)=0
 \end{cases}
 \end{equation}
-\[\]  
+%\[\]  
 According to Duhamel's Principle, an auxiliary problem of this is   
 \begin{equation}
 \begin{cases}
@@ -521,16 +522,57 @@ According to Duhamel's Principle, an auxiliary problem of this is
  u(s;s)=q(s;s).\\
 \end{cases}  
 \end{equation}
-\[\]
+%\[\]
 Duhamel's Principle implies that we can move the heat source term into initial conditions and it is possible to derive the solution of a nonhomogeneous heat equation from the solution of a homogeneous heat equation with initial values.
 
 Furthermore, our heat source term is independent of time, so Duhamel's Principle guarantees that we are allowed to absorb the heat source term into initial condition, apply normal numerical method to the problem and will get the correct solution in the end.
 
+\section{Validation of Results}
+%The above code is compared with the ANSYS Mechanical APDL, and values at the nodes are compared with the RK4 scheme results and the norm of the error is found to be at 1.76 e-7 which is well with in the comparable results. Hence, the RK4 scheme code for 2D heat equation produces similar result to the commercial software, which can validated with. The problem setting was such that the heat/temperature is applied at the top surface of the plate and all other surfaces are insulated. Below is the plot from ANSYS.\\
+
+The results from our solver were compared with ANSYS Mechanical APDL for the following test case:\\
+\\
+Martial Considered =  Steel\\
+Grid Size = 100x100\\
+Temperature at North boundary = 373K\\
+Temperature at other boundaries = 273K\\
+Initial Temperature = 273 K\\
+Simulation Time = 10s\\
+Dimension of square bare = 1m\\
+\\
+Norm of the error between results from ANSYS and results from our solver:\\
+\\
+RK4 scheme : $\parallel$e$\parallel$  = 1.76 e-7\\
+Implicit scheme : $\parallel$e$\parallel$  = 9.76 e-6\\
+
+\begin{figure}[H]
+\begin{minipage}[t]{0.5\linewidth}
+\centering
+\includegraphics[width=3.4in]{Validation.jpg}
+\caption{}
+\label{fig:side:a}
+\end{minipage}%
+\begin{minipage}[t]{0.5\linewidth}
+\centering
+\includegraphics[width=2.2in]{Validation3.png}
+\caption{}
+\label{fig:side:b}
+\end{minipage}
+\end{figure}
+
+
+
 \section{Comparison of Numerical Schemes}
-??
-??
 
-
+The CFL condition for explicit schemes become strict for increasing grid sizes. The time step should be reduced as in eq(2.19) to maintain the stability. But for smaller grid sizes,  the RK4 scheme is stable with not so small time steps. It is also accurate up to 4th order in space. Implicit scheme is unconditionally stable, but accurate only up to 2nd order in space.  Since Implicit scheme also requires solving a linear system at each time step, it is computationally more expensive and less scalable than RK4. Fig.\ref{fig:comparison} shows the comparison of computational time on different cores for both the schemes on a 100x100 grid.
+\begin{figure}[H]
+%\graphicspath{{fig/}}
+\begin{center}
+\includegraphics[width=0.6\textwidth]{Comparison.png} 
+\caption{}
+\label{fig:comparison}
+\end{center}
+\end{figure}
 
 
 \chapter{Parameter Estimation}
@@ -573,7 +615,10 @@ Line search is performed to find an appropriate learning rate. The learning rate
 
 To save so many simulation runs, we can try to solve the following constrained optimization problem, 
 \begin{equation}
-\min z= y_{k+1}(\alpha_j)-y_k(\alpha_j)   \text{ such that } y_k+1(\alpha_j)<y_k(\alpha_j)
+	\begin{aligned}
+	\min z&= y_{k+1}(\alpha_j)-y_k(\alpha_j) \\  
+    &\text{subject to  } y_k+1(\alpha_j)<y_k(\alpha_j)
+	\end{aligned}
 \end{equation}
 where,\\
 $y_{k+1}$: Least square estimate in the iteration $k+1$ of steepest descent\\
@@ -582,7 +627,7 @@ $\alpha_j$: $j^{th}$ update of $\alpha$ in $k^{th}$ iteration of steepest descen
 
 Since the above optimization problem can require the computation of Hessian,  we are not clear at this point, if the complexity of this optimization would be a better trade off. So we resort to the following adaptive update of free parameter in our project as shown in the algorithm,
 
-\begin{algorithm}[t]
+\begin{algorithm}[H]
 \caption{Steepest Descent ($C_0$)}
   \KwIn{Initial Guess $c_0 \in R^n$}
   \KwOut{Updated $c_0$}
@@ -606,7 +651,7 @@ Since the above optimization problem can require the computation of Hessian,  we
 %\vspace{\fill}
 %\pagebreak
 
-\begin{algorithm}[h]
+\begin{algorithm}[H]
 \caption{\textbf{ADAPTIVE\_LINE\_SEARCH(line\_search\_count)}}
   \KwIn{line\_search\_count}
   \KwOut{$\alpha$}
@@ -788,20 +833,18 @@ For example,  the update is made just to each red dotted blocks as shown in the 
 \end{center}
 \end{figure}
 
-
-Test Case:
-
-Grid Size:\\
-
-
+We test when grid size is $10*10$, the number of iteration we need to get a converge result is as bellow:\\
 \begin{center}
+
 \begin{tabular}{ |c|c| } 
  \hline
  Conductivity Resolution & Iterations to Converge \\ 
  \hline
- $10*10$ & cell6 \\ 
+ $10*10$ & 74207 \\ 
  \hline
- $3*3$   & cell9 \\ 
+ $5*5$   & 45283\\
+ \hline
+ $2*2$   & 12 \\ 
  \hline
 \end{tabular}
 \end{center}
