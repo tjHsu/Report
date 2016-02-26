@@ -539,11 +539,11 @@ The results from our solver were compared with ANSYS Mechanical APDL for the fol
 \\
 Martial Considered =  Steel\\
 Grid Size = 100x100\\
-Temperature at North boundary = 373K\\
-Temperature at other boundaries = 273K\\
+Temperature at North Boundary = 373K\\
+Temperature at Other Boundaries = 273K\\
 Initial Temperature = 273 K\\
 Simulation Time = 10s\\
-Dimension of square bare = 1m\\
+Dimension of Square Bar = 1m\\
 \\
 Norm of the error between results from ANSYS and results from our solver:\\
 \\
@@ -839,6 +839,18 @@ For example,  the update is made just to each red dotted blocks as shown in the 
 \end{figure}
 
 We test when grid size is $10*10$, the number of iteration we need to get a converge result is as bellow:\\
+\\
+Test Case:
+
+Martial Considered =  Silver
+
+Grid Size = 10x10
+
+Temperature at Boundary = 3000K
+
+Initial Temperature = 273 K
+
+Simulation Time = 10s\\
 \begin{center}
 
 \begin{tabular}{ |c|c| } 
@@ -1103,14 +1115,14 @@ python main.py -simulate
 % 
 %\printbibliography[heading=subbibintoc,type=article,title={Articles only}]
 
-\phantomsection
 
-\addcontentsline{toc}{chapter}{Reference}
 
 
 
 \chapter*{Reference}
 
+\phantomsection
 
+\addcontentsline{toc}{chapter}{Reference}
 
 \end{document}
