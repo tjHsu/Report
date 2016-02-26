@@ -15,6 +15,14 @@
 \usepackage{color}
 \usepackage{CJK}
 \usepackage{framed}
+\usepackage[titletoc]{appendix}
+\usepackage[nottoc,numbib]{tocbibind}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{biblatex}
+\addbibresource{sample.bib}
+
+\bibliography{your_bib_archive}
 \newcommand{\argmax}{\mathop{\rm arg~max}\limits}
 \newcommand{\argmin}{\mathop{\rm arg~min}\limits}
 \begin{document}
@@ -105,13 +113,10 @@ For the purpose of testing, and gathering results, the observed temperature has 
 
 \chapter{Introduction}
 %\setcounter{page}{1}
-To estimate the variation in conductivity along the surface of a homogeneous material*, the heat conduction along the 2D surface have to be simulated. This chapter explains the details of the problem, the solution approaches and the bottlenecks.\\
+To estimate the variation in conductivity along the surface of a homogeneous material\footnote{We assume constant density along the surface of the material under consideration}, the heat conduction along the 2D surface have to be simulated. This chapter explains the details of the problem, the solution approaches and the bottlenecks.\\
 
-\begin{small}
-\begin{flushleft}
- *  We assume constant density along the surface of the material under consideration
- \end{flushleft} 
-\end{small}
+
+
 
 \section{Problem Definition}
 Heat is an energy that flows from higher temperature to lower temperature. Conduction is a method of heat transfer that occurs by  the movement of electrons from atom to atom .Thus, densely packed materials have higher conduction. The heat conduction in 2D can be modeled using the following partial differential equation$^{[1]}$:
@@ -457,7 +462,7 @@ The communication of ghost rows for implicit and RK4 schemes can be found in the
 	send the bottom row to the next rank\\
 	receive the top ghost row from the previous rank\\   
 	\bigskip
-	U\_current = U\_next
+	U\_current = U\_next\\
     t=t+dt
   }
 
@@ -475,12 +480,12 @@ The algorithm for the implicit scheme iteration is as follow:
   
   \While{$t<\text{TIME}$}
   {
-    Reset u\_k to 0
+    Reset u\_current to 0\\
     \While{$residual<epsilon$}
     {
 	loop i: 1:my\_end\;	
     \Indp loop j: 1:my\_end\;
-      	\Indp $u_{k+1}$=Jacobi-Iteration($u_{k}$)\;
+      	\Indp u\_next=Jacobi-Iteration(u\_current)\;
       	    \bigskip 
     \Indm \Indm send the top row to the previous rank\\
 	receive the last ghost row from the next rank\\
@@ -488,7 +493,7 @@ The algorithm for the implicit scheme iteration is as follow:
 	send the bottom row to the next rank\\
 	receive the top ghost row from the previous rank\\   
 	\bigskip
-    residual=$\parallel x_{k+1}-x_{k} \parallel$  \\
+    residual=$\parallel$ u\_next-u\_current $\parallel$  \\
     Sum the local residual from all the processors
     }
     u\_current=u\_next\\
@@ -863,8 +868,9 @@ To push the memory constraints of Adjoint AD, the check points of memory break d
 
 
 \newpage
-\appendix
-\chapter{ Using DCO for computing the gradient by Adjoint mode AD}
+
+\begin{appendices}
+\chapter{ Using DCO for computing the gradient by adjoint mode AD}
 
 To obtain the gradient with DCO adjoint mode, we have to identify the output of the function to be differentiated and its parameters. The data types should be changed to DCO type for the variables that carries the dependencies from input to output.\\
 \\
@@ -1076,10 +1082,34 @@ To use the tool just for simulation, use the argument “--simulate” while exe
 
 python main.py -simulate
 
+\end{appendices}
+
+
+%\begin{thebibliography}{9}
+%
+%\bibitem{lamport94}
+%  Leslie Lamport,
+%  \emph{\LaTeX: a document preparation system},
+%  Addison Wesley, Massachusetts,
+%  2nd edition,
+%  1994.
+%
+%\end{thebibliography}
+%
+%\printbibliography[
+%heading=bibintoc,
+%title={Whole bibliography}
+%]
+% 
+%\printbibliography[heading=subbibintoc,type=article,title={Articles only}]
+
+\phantomsection
+
+\addcontentsline{toc}{chapter}{Reference}
 
 
 
-
+\chapter*{Reference}
 
 
 
