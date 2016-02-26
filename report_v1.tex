@@ -1,10 +1,13 @@
 
 \documentclass[10pt,a4paper]{report}
+\usepackage[cm]{fullpage}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{graphicx}
+\usepackage{float}
+\usepackage{subfigure}
 \usepackage[linesnumbered,boxed]{algorithm2e}
 \newcommand{\argmax}{\mathop{\rm arg~max}\limits}
 \newcommand{\argmin}{\mathop{\rm arg~min}\limits}
@@ -408,14 +411,14 @@ As we state in the beginning, the major advantage of implicit finite difference 
 
 
 
-\subsection{Jacobi Iteration and Domain Decomposition}
+\subsection{Domain Decomposition}
 
 In order to improve the efficiency of the code running in the parallelly, we can divide the domain in to different types and assign the division to each of the processor to work on that part of the code or domain. However, the decomposition of domain is of purely personal choice and depends on the user, who programs it. Here we have used 1D domain desomposition, such that the entire domain is split in to rows depending on the number of processors, and the processors act on that part of the domain assigned to them. Below the figure represents the decomposition of the domain.
 \pagebreak
 \begin{figure}[h]
 %\graphicspath{{fig/}}
 \begin{center}
-\includegraphics[width=0.8\textwidth]{Domaindecomposition} 
+\includegraphics[width=0.6\textwidth]{Domaindecomposition} 
 \caption{Domain Decomposition} \vskip 10 pt
 \label{fig:domain}
 \end{center}
@@ -469,6 +472,26 @@ The algorithm for the implicit scheme iteration is as follow:
     t=t+dt
   }
 \end{algorithm}
+\pagebreak
+
+The above code is compared with the ANSYS Mechanical APDL, and values at the nodes are compared with the RK4 scheme results and the norm of the error is found to be at 1.76 e-7 which is well with in the comparable results. Hence, the RK4 scheme code for 2D heat equation produces similar result to the commercial software, which can validated with. The problem setting was such that the heat/temperature is applied at the top surface of the plate and all other surfaces are insulated. Below is the plot from ANSYS.\\
+
+\begin{figure}
+\begin{minipage}[t]{0.5\linewidth}
+\centering
+\includegraphics[width=3.4in]{Validation.jpg}
+\caption{}
+\label{fig:side:a}
+\end{minipage}%
+\begin{minipage}[t]{0.5\linewidth}
+\centering
+\includegraphics[width=2.2in]{Validation3.png}
+\caption{}
+\label{fig:side:b}
+\end{minipage}
+\end{figure}
+
+
 
 
 
@@ -506,42 +529,52 @@ Furthermore, our heat source term is independent of time, so Duhamel's Principle
 
 
 \chapter{Parameter Estimation}
-
+A stable solver which simulates the non-linear heat conduction is required for estimating the heat conductivities, and this was discussed in detail in the last chapter. Now, the conductivities should be optimized to a set of observed temperature distribution. In this chapter, parameter estimation by  gradient descent method will be discussed. 
 \section{Steepest Descent Method}
 
-In order to fit parameters back to a problem, we choose steepest descent method. Given a cost function $F(c_1,...,c_n)$ on a search space, we update our parameter set,$(c_1,...,c_n)$, until our cost function $F(c_1,...,c_n)$ converges into a minimal. However, it is not guaranteed that the steepest descent method will stop at the real minimal, usually it stops at local minimal then get stuck in there.
+In order to fit parameters back to a problem, we choose steepest descent method. Given a cost function $F(c_1,...,c_n)$ on a search space $c_1,...,c_n \in R$, we update our parameter set,$(c_1,...,c_n)$, until our cost function $F(c_1,...,c_n)$ converges into a minimal. However, it is not guaranteed that the steepest descent method will stop at the real minimal, usually it stops at local minimal then get stuck in there.
 
-In our report, we use square error function as our cost function $F(c_1,...,c_n)$, this is to say, when our hypothesis is $h_c(x)=\mathbf{c}^T \mathbf{x}$, our cost function is
+In our report, we use square error function as our cost function $F(c_1,...,c_n)$, this is to say, our cost function is
+%when our hypothesis is $h_c(x)=\mathbf{c}^T \mathbf{x}$,
 \begin{equation}
- F(c_1,...,c_n)= \sum\limits_{i=1}^M (U_i-O_i)^2          .
+ F(c_1,...,c_n)= \sum\limits_{i=1}^N (U_i-O_i)^2          .
 \end{equation} \[\] 
-, in which $M$ is the number of our data and $y$ is the real result. The goal would be
+where,\\
+$U_i$: Final temperature computed by the solver at $i^{th}$ grid point.\\
+$O_i$: Observed temperature at $i^{th}$ grid point.\\
+$N$: $n*n$, where n is the grid size in each dimension.\\
+
+In our project, we try to minimize the following square error function, so the goal would be
 \begin{equation}
 \argmin_{c_0,...,c_n}F(c_0,...,c_n).
-\end{equation}
- \[\]  
-First, we randomly pick $c_0,...,c_n$ as our start point, then we update each $c$ as following
+\end{equation} 
+To fulfil this, we use the tabulated values of conductivities as our initial guess,$^{[3]}$ and perform the following update and re-compute the cost function until convergence,
+%first, we randomly pick $c_0,...,c_n$ as our start point, then we update each $c$ as following
 \begin{equation}
 c_j := c_j - \alpha{\frac{\partial F(c_1,...,c_n)}{\partial c_j}},
 \end{equation}
- \[\] in which $\alpha$ is the learning rate. After updating all parameters, we replace our cost function $F(c_1,...,c_n)$ with the new set of $(c_1,...,c_n)$. The next iteration will start with this new cost function and we iterate it until the cost function converge to its minimum. 
+where,\\
+ $\alpha$ is the learning rate. \\
+ 
+After updating all parameters, we replace our cost function $F(c_1,...,c_n)$ with the new set of $(c_1,...,c_n)$. The next iteration will start with this new cost function and we iterate it until the cost function converge to its minimum. 
 
 The algorithm for this is as follow:
 \begin{algorithm}[t]
-\caption{Steepest Descent Method}
-  \KwIn{}
-  \KwOut{}
-  Initial Guess $c_{0}$:$R^{n}$\\
-  STEEPEST DESCENT($c_{0}$)\\
+\caption{Steepest Descent ($C_0$)}
+  \KwIn{Initial Guess $c_0 \in R^n$}
+  \KwOut{Updated $c_0$}
+
   $c=c_{0}$\\
   Compute the gradient $\textbf{g}(c)$\\
   \While{$\parallel \textbf{g} \parallel > \epsilon$}
   {
+  line\_search\_count=0 \\
     \While{$F(c_{k})>C(c)$}    
     {
 	$c_{k}=c + \alpha \textbf{g}$\\
 	Compute $F(c_{k})$\\
-	$\alpha =\frac{ \alpha}{2}$\\
+	line\_search\_count++ \\
+	$\alpha =\textbf{ADAPTIVE\_LINE\_SEARCH(line\_search\_count)}$\\
     }
     $c=c_{k}$\\
     Compute gradient $\textbf{g}(c)$\\
@@ -549,6 +582,42 @@ The algorithm for this is as follow:
 \end{algorithm}
 %\vspace{\fill}
 \pagebreak
+\subsection{Finding the Learning Rate}
+
+Line search is performed to find an appropriate learning rate. The learning rate (alpha) is divided by 2, until we find an update (3.2) which reduces the cost function. Even though the monotonous reduction is ensured, the number of free parameter updates that will be required is unclear. If the current alpha is 0.1 and the alpha required for reduction is 0.0001, then at least 500 updates of free parameter would be required. This means, we have to run the simulation 500 times. 
+
+To save so many simulation runs, we can try to solve the following constrained optimization problem, 
+\begin{equation}
+\argmin z= y_{k+1}(\alpha_j)-y_k(\alpha_j)   \text{ such that } y_k+1(\alpha_j)<y_k(\alpha_j)
+\end{equation}
+where,\\
+$y_{k+1}$: Least square estimate in the iteration $k+1$ of steepest descent\\
+$y_{k}$: Least square estimate in the iteration $k$ of steepest descent\\
+$\alpha_j$: $j^{th}$ update of $\alpha$ in $k^{th}$ iteration of steepest descent.
+
+Since the above optimization problem can require the computation of Hessian,  we are not clear at this point, if the complexity of this optimization would be a better trade off. So we resort to the following adaptive update of free parameter in our project as shown in the algorithm,
+
+\begin{algorithm}[h]
+\caption{\textbf{ADAPTIVE\_LINE\_SEARCH(line\_search\_count)}}
+  \KwIn{line\_search\_count}
+  \KwOut{$\alpha$}
+  \If{(line\_search\_count<10)}	
+  {  
+  $\alpha=\frac{\alpha}{2}$
+  }
+  \ElseIf{(line\_search\_count<10)}	
+  {
+  $\alpha=\frac{\alpha}{10}$
+  }
+  \Else	
+  {
+  $\alpha=\frac{\alpha}{100}$
+  }
+  Return $\alpha$
+\end{algorithm}
+
+However, the implemented adaptive line search may not be optimal for all cases.
+
 \section{Separating the Conductivity Resolution from Temperature Distribution Resolution}
 %Graph.
 Although we can specify certain thermal conductivity to each points when simulating, at the beginning we are not going to fit parameter on each point. Instead, we divide our domain in to several block and the block size can be specified. The first reason is that usually the original conductivity is not different at each point but block. Second, since in estimation step, we doesn't know the distribution of the initial conductivity, rashly set the resolution to the grid point may cause overfitting and need more computation time. It would be proper to start with big block, and depending on the accuracy requirement, we can reduce the size of the block until we get the expected result. 
