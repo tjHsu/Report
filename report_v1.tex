@@ -545,9 +545,9 @@ $O_i$: Observed temperature at $i^{th}$ grid point.\\
 $N$: $n*n$, where n is the grid size in each dimension.\\
 
 In our project, we try to minimize the following square error function, so the goal would be
-\begin{equation}
+\begin{equation*}
 \argmin_{c_0,...,c_n}F(c_0,...,c_n).
-\end{equation} 
+\end{equation*} 
 To fulfil this, we use the tabulated values of conductivities as our initial guess,$^{[3]}$ and perform the following update and re-compute the cost function until convergence,
 %first, we randomly pick $c_0,...,c_n$ as our start point, then we update each $c$ as following
 \begin{equation}
@@ -618,16 +618,14 @@ Since the above optimization problem can require the computation of Hessian,  we
 
 However, the implemented adaptive line search may not be optimal for all cases.
 
-\section{Separating the Conductivity Resolution from Temperature Distribution Resolution}
-%Graph.
-Although we can specify certain thermal conductivity to each points when simulating, at the beginning we are not going to fit parameter on each point. Instead, we divide our domain in to several block and the block size can be specified. The first reason is that usually the original conductivity is not different at each point but block. Second, since in estimation step, we doesn't know the distribution of the initial conductivity, rashly set the resolution to the grid point may cause overfitting and need more computation time. It would be proper to start with big block, and depending on the accuracy requirement, we can reduce the size of the block until we get the expected result. 
-
-
-
-
-
 \section{Compute the Gradient}
-For steepest descent, we need to compute the gradient. For this, we have three choice, finite difference, adjoint mode and tagent linear mode. 
+
+Gradient computation is the biggest bottleneck in gradient based optimization techniques, especially when the number of inputs to the function to be differentiated is large. The gradient of our least square function with respect to its parameters is, 
+ 
+\begin{equation}
+g=\frac{\partial F(c)}{c}
+\end{equation}       
+%For steepest descent, we need to compute the gradient. For this, we have three choice, finite difference, adjoint mode and tagent linear mode. 
 
 Finite difference:
 \begin{equation}
@@ -652,9 +650,65 @@ F(x,\bar{y}):=\bar{y}F'(x)=\bar{x}
 $\text{The computational cost of }F'(x)\, \text{is at} \, O(output) \cdot cost(F)$. Different from two methods above, computing gradient with adjoint mode, the computational cost is linear to the output. For our case, it means we can get full gradient in one run. Since accuracy is not the important issue for us, we will mainly use adjoint mode to compute gradient for steepest descent method. 
      
 \subsection{Gradient computation using finite difference}
+
+The gradient of the following function can be computed using forward finite difference as follows,\\
+$F:R^{N} \mapsto R$,
+\begin{algorithm}[h]
+\caption{\textbf{FINITE\_DIFFERENCE(c)}}
+  \KwIn{conductivity array 'c'}
+  \KwOut{gradient g}
+  y=F(c')\\
+  Loop i: $1:N$\\
+  \Indp $\theta_i = \theta_i +h$\\
+  $g_{i} = \frac{F(c_{i}-y)}{h}$
+  
+\end{algorithm}
+
+Hence for a single gradient evaluation, each of the parameter should be perturbed and the least square estimate should be computed. This means the simulation should be run $N$ times for a evaluating one gradient ($N = n*n$, where $n$ is the grid size in each dimension) 
+
+
 \subsection{Gradient compuataion using algorithmic differentiation}
+
+\begin{figure}[H]
+\begin{minipage}[t]{0.5\linewidth}
+\centering
+\includegraphics[width=2.2in]{AD_l.png}
+\caption{}
+\label{fig:side:a}
+\end{minipage}%
+\begin{minipage}[t]{0.5\linewidth}
+\centering
+\includegraphics[width=2.2in]{AD_r.png}
+\caption{}
+\label{fig:side:b}
+\end{minipage}
+\end{figure}
+
+
 \subsection{Comparison of gradient computation time by FD and Adjoint AD}
+\begin{figure}[h]
+%\graphicspath{{fig/}}
+\begin{center}
+\includegraphics[width=0.6\textwidth]{GraDiff.png} 
+\caption{} \vskip 10 pt
+\label{fig:GradDiff}
+\end{center}
+\end{figure}
+
+
+
 \section{Convergence of Steepest Descent}
+
+The considered cost function becomes less sensitive to the parameters as we increase the number of conductivity points to be estimated along a given surface. For example, one cannot expect much change in the least square estimate of temperature difference by changing the conductivity by a small value at just one point in a $10*10$ set. Thus we see this gap between the convergence of Final temperature distribution and convergence of conductivities. Hence, when the solution approaches close to the expected temperature, the gradient values become close to zero, and thereby updating the conductivities in equation (3.2)  by small values at each step of gradient descent.
+\begin{figure}[h]
+%\graphicspath{{fig/}}
+\begin{center}
+\includegraphics[width=0.6\textwidth]{Conv.png} 
+\caption{} \vskip 10 pt
+\label{fig:Conv}
+\end{center}
+\end{figure}
+
 %convergence reach a plator and wait long to decrease again.
 
 %\section{Difference between Diffusivity and Thermal Conductivity}
@@ -668,6 +722,38 @@ $\text{The computational cost of }F'(x)\, \text{is at} \, O(output) \cdot cost(F
 %
 %It worth recurring to this, since we mistook these two parameter at the beginning of the project and it lead to the wrong simulation result.
 
+\subsection{Separating the Conductivity Resolution from Temperature Distribution Resolution}
+%Graph.
+Although we can specify certain thermal conductivity to each points when simulating, at the beginning we are not going to fit parameter on each point. Instead, we divide our domain in to several block and the block size can be specified. The first reason is that usually the original conductivity is not different at each point but block. Second, since in estimation step, we doesn't know the distribution of the initial conductivity, rashly set the resolution to the grid point may cause overfitting and need more computation time. It would be proper to start with big block, and depending on the accuracy requirement, we can reduce the size of the block until we get the expected result.
+
+For example,  the update is made just to each red dotted blocks as shown in the Fig.\ref{fig:CondBlock}. This can speed up the convergence of steepest descent. If gradient is computed using finite difference, this will be of some profit.
+
+\begin{figure}[h]
+%\graphicspath{{fig/}}
+\begin{center}
+\includegraphics[scale=0.45]{CondBlock.png} 
+\caption{} \vskip 10 pt
+\label{fig:CondBlock}
+\end{center}
+\end{figure}
+
+
+Test Case:
+
+Grid Size:\\
+
+
+\begin{center}
+\begin{tabular}{ |c|c| } 
+ \hline
+ Conductivity Resolution & Iterations to Converge \\ 
+ \hline
+ $10*10$ & cell6 \\ 
+ \hline
+ $3*3$   & cell9 \\ 
+ \hline
+\end{tabular}
+\end{center}
 
 \chapter{Conclusion}
 %\section{Speed up with MPI}
