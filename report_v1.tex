@@ -32,8 +32,9 @@
 \thispagestyle{empty}
 \centering
 \Large
-%~\vspace{\fill}
-{\Large Estimation of Conductivities in a 2D Non-Linear Heat Conduction Problem}
+
+\vspace{5cm}
+{\Large \textbf{Estimation of Conductivities in a 2D Non-Linear Heat Conduction Problem}}
 
 
 \vspace{0.5cm}
@@ -42,7 +43,7 @@
 
 \begin{normalsize}
 Aravind Sankaran (351286)\\
-Krishnaswamy Veluswamy(11111)\\ 
+Krishnaswamy Veluswamy(351294)\\ 
 Ting-Jui Hsu(351218)
 
 \end{normalsize}
@@ -330,7 +331,7 @@ k_2=f(t_n+\tau,u^n+\tau k_3).
 \end{align*}
 The accuracy for the fourth-order Runge-Kutta method is $\mathcal{O}(\tau^5)$. However, this method also requires to evaluate the function $f$ four times per time step. One can easily see that in order to get higher order precision, we need more evaluations per time step. Generally speaking, it's not efficient to apply Runge-Kutta methods higher than fourth order. 
 
-The main benefit of explicit finite difference method is its easiness of implementation and short computing time for each iteration. However, explicit finite difference method is stable only under this condition,
+The main benefit of explicit finite difference method is its easiness of implementation and short computing time for each iteration. However, explicit finite difference method is stable only under this condition$^{[4]}$,
 \begin{equation}
 {\frac{k_{i,j}\tau}{h^2}}\leq {\frac{1}{4}}.
 \end{equation}
@@ -1012,14 +1013,15 @@ The self contained code for the driver is on the next page.  \\
     \centering
     \includegraphics[width=0.45\textwidth]{AppenA.png}
 \end{wrapfigure}
-It is quite simple to use our tool. The parameters of simulation can be set in the python script “main.py”. Hence, one has to modify only this python script. The observed temperature should be  written in a text file named as  “obs\_Temp.txt” under the folder “data” in the following format:\\
+The parameters of simulation can be set in the python script “main.py”. Hence, one has to modify only this python script. The observed temperature should be  written in a text file named as  “obs\_Temp.txt” under the folder “data” in the following format:\\
 
 $<$ row\_Id $>$ \;     $<$column\_Id$>$  \;   $<$temperature$>$\\
 
 This file should contain the temperature at all grid points including boundary. Hence, for a grid size of 10x10, there should be (10+2)x(10+2) values.
 
-For efficient estimation at each point, the final observed temperature should be well above the initial temperature at every point in the grid. \\
+If the observed temperatures are not available, it is possible to run the test mode, where the observed values are taken from the simulation appended by certain noise. 
 
+For efficient estimation at each point, the final observed temperature should be well above the initial temperature at every point in the grid. \\
 \textit{The followint parameters can be modified:}
 
 %\begin{center}
@@ -1036,7 +1038,7 @@ For efficient estimation at each point, the final observed temperature should be
 
 
 
-\begin{tabular}{ | m{10em} | m{7cm}| m{1cm} | } 
+\begin{tabular}{ | m{10.5em} | m{7cm}| m{0.95cm} | } 
 \hline
 \textbf{Parameter} & \textbf{Description} & \textbf{Unit}\\ 
 \hline
@@ -1070,29 +1072,50 @@ GRADIENT & Compute by Finite difference (d) / Adjoint mode AD (a) & -\\
 \hline
 Q[] & Heat source temperature & K\\
 \hline
-USE\_SIMULATED\_T & If Observed temperature is not available, temperature from the simulation appended by some noise can be used for estimation & -\\
+TEST & If Observed temperature is not available, temperature from the simulation appended by some noise can be used for estimation & \\
 \hline
+LEARNING\_RATE & The learning rate of steepest descent & \\
+\hline
+REQUIRED\_RESIDUAL & Required residual until convergence of steepest descent & \\
+\hline
+
 \end{tabular}
 \newpage
 
 \textbf{Running the python script:}\\
 
-python main.py\\
-
+%\begin{snugshade}
+\textit{python main.py $<$ \textit{number of cores} $>$}\\
+%\end{snugshade}
 
 This will write the required data files and compile the source codes. Two executables will be generated: simulate and estimate. 
 
-In case the observed temperature is not available, one should execute 'simulate' and then execute 'estimate'. Alternatively, executing the python script as \\
+In case the observed temperature is not available, one should execute 'simulate' and then execute 'estimate'. Alternatively, one can also execute the generated bash script.\\
 
-python main.py  -\,-test\\
+Execute the following statement for details of the arguments\\
 
-will generate a bash script “run.sh” with the required executable statements.\\
+%\begin{snugshade}
+\textit{python main.py $<$number of cores$>$ --help}\\
+%\end{snugshade}
 
-The estimated conductivities will be found under data/estimate\_conductivity.txt and the corresponding final temperature under data/estimate\_Temp.txt
+The estimated conductivities will be found under \textit{\textbf{data/estimate\_conductivity.txt}} and the corresponding final temperature under \textit{\textbf{data/estimate\_Temp.txt}}\\
 
-To use the tool just for simulation, use the argument “--simulate” while executing the python script.\\
+\textbf{To Plot the temperature distribution}
 
-python main.py -simulate
+Please run the following python script  under the folder “code”\\
+
+\textit{python contour.py $<$path of the file name$>$ $<$grid size as mentioned in main.py$>$ }\\
+
+eg, \textit{python contour.py data/obs\_Temp.txt 100}
+
+
+%will generate a bash script “run.sh” with the required executable statements.\\
+%
+%The estimated conductivities will be found under data/estimate\_conductivity.txt and the corresponding final temperature under data/estimate\_Temp.txt
+%
+%To use the tool just for simulation, use the argument “--simulate” while executing the python script.\\
+%
+%python main.py -simulate
 
 \end{appendices}
 
@@ -1124,5 +1147,51 @@ python main.py -simulate
 \phantomsection
 
 \addcontentsline{toc}{chapter}{Reference}
+
+
+
+
+\hspace*{\parindent}[1] Applied partial differential equations. An Introduction – Alan Jeffery
+
+[2] IIT Physics. Vol 1 – P.K Agarwal
+
+[3] www.math.usm.edu/lambers/mat419/lecture10.pdf -  Steepest descent method
+
+[4] http://ocw.mit.edu/courses/mathematics/18-336-numerical-methods-for-partial-differential-equations-spring-2009/lecture-notes/MIT18\_336S09\_lec14.pdf – Von Neumann Stability analysis
+
+[5] Art of Differentiating Computer Programs – Uwe Naumann
+
+
+
+%\begin{thebibliography}{9}
+%
+%%\bibitem{lamport94}
+%%  Leslie Lamport,
+%%  \emph{\LaTeX: a document preparation system},
+%%  Addison Wesley, Massachusetts,
+%%  2nd edition,
+%%  1994.
+%  
+%\bibitem{lamport94}
+%  Uwe Naumann,
+%  Art of Differentiating Computer Programs.
+%
+%\bibitem{lamport94}
+%  Alan Jeffery,
+%  Applied partial differential equations. An Introduction
+%
+%\bibitem{lamport94}  
+%  P.K Agarwal,
+%  IIT Physics. Vol 1
+%
+%\bibitem{lamport94}  
+%  Steepest descent method,
+%  www.math.usm.edu/lambers/mat419/lecture10.pdf 
+%  
+%\bibitem{lamport94}
+%  Von Neumann Stability analysis,
+%  http://ocw.mit.edu/courses/mathematics/18-336-numerical-methods-for-partial-differential-equations-spring-2009/lecture-notes/MIT18\_336S09\_lec14.pdf 
+
+%\end{thebibliography}
 
 \end{document}
