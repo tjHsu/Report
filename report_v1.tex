@@ -74,13 +74,13 @@ D-52056 Aachen, Germany\\
 
 \begin{normalsize}
 \textit{for}\\
-fulfillment of the course “Simulation Science Laboratory”
+fulfilment of the course “Simulation Science Laboratory”
 
 \end{normalsize}
 
 \vspace{0.5cm}
 
-{\normalsize $28^{th}$ Febuary 2016}
+{\normalsize $28^{th}$ February 2016}
 
 \vspace{\fill}
 \pagebreak 
@@ -120,7 +120,7 @@ To estimate the variation in conductivity along the surface of a homogeneous mat
 
 
 \section{Problem Definition}
-Heat is an energy that flows from higher temperature to lower temperature. Conduction is a method of heat transfer that occurs by  the movement of electrons from atom to atom .Thus, densely packed materials have higher conduction. The heat conduction in 2D can be modeled using the following partial differential equation$^{[1]}$:
+Heat is an energy that flows from higher temperature to lower temperature. Conduction is a method of heat transfer that occurs by  the movement of electrons from atom to atom .Thus, densely packed materials have higher conduction. The heat conduction in 2D can be modelled using the following partial differential equation$^{[1]}$:
 \begin{equation}
 \frac{\partial u}{\partial t}=k \bigtriangledown^2(u)
 \end{equation}
@@ -229,7 +229,7 @@ The gradient descent method requires solving the heat equation until convergence
 
 The main model problem would be discussed in our report is a 2D heat equation. We would like to know the final temperature distribution of the plate, when boundary conditions are given temperature on borders and heat source inside the domain. We approximate the derivatives of this problem with finite difference and we define an equidistant $n \times  n$ spatial grid. 
 
-Generalizing the non linear heat comduction equation in (1.7) to 2 dimensions, we get that the temperature evolution with the time would be governed by the heat equation in the form 
+Generalizing the non linear heat conduction equation in (1.7) to 2 dimensions, we get that the temperature evolution with the time would be governed by the heat equation in the form 
 \begin{equation}
 {\frac{\partial u}{\partial t}}=k_{x,y}\bigtriangledown^2 u,\forall{x,y,t}\in \Omega,
 \end{equation}
@@ -316,7 +316,7 @@ with
 k_1=f(t_n,u^n),\\
 k_2 = f(t_n+\tau, u^n+\tau k_1).
 \end{align}
-This is so called second-order Runge-Kutta method. However, to gain higher accuracy we use fourthe-order Runge-Kutta method and the method is as follow,
+This is so called second-order Runge-Kutta method. However, to gain higher accuracy we use fourth-order Runge-Kutta method and the method is as follow,
 \begin{equation}
 u^{n+1}=u^n+h[{\frac{k_1}{6}}+{\frac{k_2}{3}}+{\frac{k_3}{3}}+{\frac{k_4}{6}}]
 \end{equation}
@@ -430,7 +430,7 @@ As we state in the beginning, the major advantage of implicit finite difference 
 \subsection{Domain Decomposition}
 
 %In order to improve the efficiency of the code running in the parallelly, we can divide the domain in to different types and assign the division to each of the processor to work on that part of the code or domain. However, the decomposition of domain is of purely personal choice and depends on the user, who programs it. Here we have used 1D domain desomposition, such that the entire domain is split in to rows depending on the number of processors, and the processors act on that part of the domain assigned to them. Below the figure represents the decomposition of the domain.
-Since the temperature at each grid point depends only on its neighboring points for both implicit and Rk4 schemes, we can decompose the domain to split the work . The grid is split among the processors as shown in the Fig.\ref{fig:domain}. Each processor has a ghost row at the top and bottom which holds the grid points of neighboring ranks. // 
+Since the temperature at each grid point depends only on its neighbouring points for both implicit and Rk4 schemes, we can decompose the domain to split the work . The grid is split among the processors as shown in the Fig.\ref{fig:domain}. Each processor has a ghost row at the top and bottom which holds the grid points of neighbouring ranks. // 
 
 \begin{figure}[h]
 %\graphicspath{{fig/}}
@@ -470,7 +470,7 @@ The communication of ghost rows for implicit and RK4 schemes can be found in the
 \end{algorithm}
 
 
-There at each iteration over the time, we send top row to the previous rank and recieve it in the last ghost row from previous rank. And we also send the bottom row to the next rank and receive it in the top ghost row of the previous rank. This is how the domain is decomposed and the communication of data between the processors occurs.\\
+There at each iteration over the time, we send top row to the previous rank and receive it in the last ghost row from previous rank. And we also send the bottom row to the next rank and receive it in the top ghost row of the previous rank. This is how the domain is decomposed and the communication of data between the processors occurs.\\
 According to the same manner, we can also use it on fully implicit method with Jacobi iteration.\\
 The algorithm for the implicit scheme iteration is as follow:
 
@@ -728,7 +728,7 @@ Hence for a single gradient evaluation, each of the parameter should be perturbe
 \pagebreak
 
 
-\subsection{Gradient compuataion using Adjoint mode AD}
+\subsection{Gradient computation using Adjoint mode AD}
 
 %\begin{figure}[H]
 %\begin{minipage}[t]{0.5\linewidth}
@@ -1048,7 +1048,7 @@ For efficient estimation at each point, the final observed temperature should be
 %\end{figure}
 
 \newpage
-\textit{The followint parameters can be modified:}\\
+\textit{The following parameters can be modified:}\\
 
 %\begin{center}
 %\begin{tabular}{ | c {1cm}|c {5cm}|c {2cm}| } 
@@ -1064,7 +1064,7 @@ For efficient estimation at each point, the final observed temperature should be
 
 
 
-\begin{tabular}{ | m{10.5em} | m{7cm}| m{0.95cm} | } 
+\begin{tabular}{ | m{11em} | m{11cm}| m{1.8cm} | } 
 \hline
 \textbf{Parameter} & \textbf{Description} & \textbf{Unit}\\ 
 \hline
@@ -1096,7 +1096,7 @@ SCHEME & Implicit (i) / Explicit(e) / RK4 (r) & -\\
 \hline
 GRADIENT & Compute by Finite difference (d) / Adjoint mode AD (a) & -\\
 \hline
-Q[] & Heat source temperature & K\\
+Q[ ] & Heat source temperature & K\\
 \hline
 TEST & If Observed temperature is not available, temperature from the simulation appended by some noise can be used for estimation & \\
 \hline
@@ -1184,7 +1184,8 @@ eg, \textit{python contour.py data/obs\_Temp.txt 100}
 
 [3] www.math.usm.edu/lambers/mat419/lecture10.pdf -  Steepest descent method
 
-[4] http://ocw.mit.edu/courses/mathematics/18-336-numerical-methods-for-partial-differential-equations-spring-2009/lecture-notes/MIT18\_336S09\_lec14.pdf – Von Neumann Stability analysis
+[4] http://ocw.mit.edu/courses/mathematics/18-336-numerical-methods-for-partial-differential-equations-spring-2009\\
+\hspace*{\parindent}\; \;\;\:/lecture-notes/MIT18\_336S09\_lec14.pdf – Von Neumann Stability analysis
 
 [5] Art of Differentiating Computer Programs – Uwe Naumann
 
