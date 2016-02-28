@@ -195,7 +195,7 @@ $U_i$: Final temperature computed by the solver\\
 $O_i$: Observed temperature\\
 \\
 The gradient computations using Finite difference and Adjoint mode algorithmic differentiation has been compared. We use dco for the computation of the gradient using algorithmic differentiation.
-
+\pagebreak
 \section{Need for Parallelization and Adjoint Mode AD}
 Parameter estimation requires the computation of gradient for every iteration of gradient descent.\\
 For our least square estimate in equation (1.8),\\
@@ -725,6 +725,7 @@ $F:R^{N} \mapsto R$,
 \end{algorithm}
 
 Hence for a single gradient evaluation, each of the parameter should be perturbed and the least square estimate should be computed. This means the simulation should be run $N$ times for a evaluating one gradient ($N = n*n$, where $n$ is the grid size in each dimension) 
+\pagebreak
 
 
 \subsection{Gradient compuataion using Adjoint mode AD}
@@ -787,12 +788,23 @@ Thus we compute the adjoints of the inputs and recover the gradient in  a single
 
 
 \subsection{Comparison of gradient computation time by FD and Adjoint AD}
-The following graph shows the comparison of computation time of gradient by Finite difference and Adjoint AD. Since we augment the output in the adjoint mode, the computation time of gradient is independent of the input parameter size.\\
+
+%\begin{wrapfigure}{r}{0.45\textwidth} %this figure will be at the right
+%    \centering
+%    \includegraphics[width=0.45\textwidth]{GraDiff.png}
+%    \caption{}
+%    \label{fig:GradDiff}
+%\end{wrapfigure}
+
+The following graph shows the comparison of computation time of gradient by Finite difference and Adjoint AD. Since we augment the output in the adjoint mode, the computation time of gradient is independent of the input parameter size.
+
+
+
 \begin{figure}[H]
 %\graphicspath{{fig/}}
 \begin{center}
-\includegraphics[width=0.6\textwidth]{GraDiff.png} 
-\caption{} \vskip 10 pt
+\includegraphics[width=0.45\textwidth]{GraDiff.png} 
+\caption{}
 \label{fig:GradDiff}
 \end{center}
 \end{figure}
@@ -823,6 +835,8 @@ The considered cost function becomes less sensitive to the parameters as we incr
 %Before we get start, we need to clarify the difference between thermal diffusivity and thermal conductivity. Thermal diffusivity is \[\alpha = {\frac{k}{\rho c_p}}.\] Here $k$ is thermal conductivity, $\rho$ is density and $c_p$ is specific heat capacity. It is also denoted $k$, which is usually misunderstood with thermal conductivity and is not the parameter we want to fit back to our problem. On the other hand, thermal conductivity is a intrinsic property and relate to its ability by conduct heat. Thermal conductivity is often denoted $k$,$\kappa$ and $c$.   
 %
 %It worth recurring to this, since we mistook these two parameter at the beginning of the project and it lead to the wrong simulation result.
+
+\pagebreak
 
 \subsection{Separating the Conductivity Resolution from Temperature Distribution Resolution}
 %Graph.
@@ -1009,10 +1023,11 @@ The self contained code for the driver is on the next page.  \\
 
 \chapter{ Using the software tool for calibrating the surface of the material}
 
-\begin{wrapfigure}{r}{0.25\textwidth} %this figure will be at the right
+\begin{wrapfigure}{r}{0.35\textwidth} %this figure will be at the right
     \centering
-    \includegraphics[width=0.45\textwidth]{AppenA.png}
+    \includegraphics[width=0.5\textwidth]{AppenA.png}
 \end{wrapfigure}
+
 The parameters of simulation can be set in the python script “main.py”. Hence, one has to modify only this python script. The observed temperature should be  written in a text file named as  “obs\_Temp.txt” under the folder “data” in the following format:\\
 
 $<$ row\_Id $>$ \;     $<$column\_Id$>$  \;   $<$temperature$>$\\
@@ -1022,7 +1037,18 @@ This file should contain the temperature at all grid points including boundary. 
 If the observed temperatures are not available, it is possible to run the test mode, where the observed values are taken from the simulation appended by certain noise. 
 
 For efficient estimation at each point, the final observed temperature should be well above the initial temperature at every point in the grid. \\
-\textit{The followint parameters can be modified:}
+
+%\begin{figure}[h]
+%%\graphicspath{{fig/}}
+%\begin{center}
+%\includegraphics[scale=0.55]{AppenA.png} 
+%%\caption{} \vskip 10 pt
+%\label{AppenA.png}
+%\end{center}
+%\end{figure}
+
+\newpage
+\textit{The followint parameters can be modified:}\\
 
 %\begin{center}
 %\begin{tabular}{ | c {1cm}|c {5cm}|c {2cm}| } 
@@ -1080,7 +1106,7 @@ REQUIRED\_RESIDUAL & Required residual until convergence of steepest descent & \
 \hline
 
 \end{tabular}
-\newpage
+
 
 \textbf{Running the python script:}\\
 
